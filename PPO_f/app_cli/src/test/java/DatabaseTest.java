@@ -1,5 +1,3 @@
-import com.github.springtestdbunit.DbUnitTestExecutionListener;
-import com.github.springtestdbunit.annotation.DatabaseSetup;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
@@ -10,8 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import ru.bmstu.iu7.*;
 import ru.bmstu.iu7.API.model.*;
 import ru.bmstu.iu7.impl.*;
@@ -21,10 +17,8 @@ import ru.bmstu.iu7.src.managers.UserManager;
 import ru.bmstu.iu7.src.managers.RecManager;
 import ru.bmstu.iu7.DBAPI;
 
-
 import java.util.ArrayList;
 import java.util.List;
-
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @AutoConfigureDataJdbc
@@ -40,11 +34,6 @@ import java.util.List;
         SpringVariantAnswerRepository.class
 })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@TestExecutionListeners({
-        DependencyInjectionTestExecutionListener.class,
-        DbUnitTestExecutionListener.class,
-})
-
 @ComponentScan("ru.bmstu.iu7")
 @Transactional
 public class DatabaseTest {
@@ -273,7 +262,6 @@ public class DatabaseTest {
     }
 
     @Test
-    @DatabaseSetup("classpath:db_test_data.xml")
     public void create() throws Exception {
         DBAPI api = buildDBAPI();
         var components = buildQuestionnaireComponents(api);
