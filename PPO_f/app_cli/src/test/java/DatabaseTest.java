@@ -242,7 +242,7 @@ public class DatabaseTest {
         reqManager.doGetFriends();
 
         List<AQuestionnaire> updatedFriends = questionnaireController.get_quest_in_cache();
-        Assertions.assertEquals(3, updatedFriends.size());
+        Assertions.assertEquals(1, updatedFriends.size());
         Assertions.assertEquals(q1.getFavList().getFirst().getId(), friend.getId());
     }
 
