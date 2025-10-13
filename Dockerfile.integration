@@ -3,19 +3,16 @@ FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-# Копируем только файлы Gradle и настройки
+# Копируем Gradle и исходники
 COPY settings.gradle.kts ./
 COPY build.gradle.kts ./
 COPY gradle ./gradle
 COPY gradlew ./
-
-# Копируем все исходники модулей
 COPY PPO_F ./PPO_F
 
-# Делаем скрипт исполняемым
 RUN chmod +x ./gradlew
 
-# Собираем все модули без тестов
+# Сборка без тестов
 RUN ./gradlew build -x test
 
 # По умолчанию запускаем тесты в app_cli
