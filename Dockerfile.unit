@@ -2,20 +2,13 @@ FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
-# Копируем проект
+# Копируем весь проект PPO_f
 COPY PPO_f PPO_f
 
-# Права на gradlew
+# Даем права на запуск gradlew
 RUN chmod +x PPO_f/gradlew
-
-# Проверяем наличие файлов
-RUN ls -l PPO_f
-RUN cat PPO_f/settings.gradle
 
 WORKDIR /app/PPO_f
 
-# Собираем модули DB и BL
-RUN ./gradlew :DB:build :BL:build --no-daemon --stacktrace --info
-
-# Точка входа — запуск unit-тестов
+# Запуск unit-тестов сразу, без сборки Spring Boot
 ENTRYPOINT ["./gradlew", ":DB:test", ":BL:test", "--stacktrace", "--info"]
