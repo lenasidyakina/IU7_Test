@@ -1,17 +1,19 @@
+# Используем Python 3.10 для теста
 FROM python:3.10-slim
 
-# Устанавливаем Java
-RUN apt-get update && apt-get install -y openjdk-21-jdk && rm -rf /var/lib/apt/lists/*
+# Устанавливаем Java (нужна для запуска JAR)
+RUN apt-get update && \
+    apt-get install -y openjdk-21-jdk git curl && \
+    rm -rf /var/lib/apt/lists/*
 
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем весь проект
-COPY PPO_f PPO_f
+# Копируем исходники тестов и JAR
+COPY PPO_f /app/PPO_f
 
-WORKDIR /app/PPO_f
+# Устанавливаем Python зависимости
+RUN pip install --no-cache-dir psycopg2-binary testcontainers
 
-# Устанавливаем Python-зависимости
-RUN pip install --no-cache-dir psycopg2-binary
-
-# Точка входа для E2E тестов
-ENTRYPOINT ["python", "main.py"]
+# Команда по умолчанию — запуск тестов
+CMD ["python3", "PPO_f/main.py"]
