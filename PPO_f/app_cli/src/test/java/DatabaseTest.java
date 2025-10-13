@@ -23,8 +23,8 @@ import ru.bmstu.iu7.DBAPI;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @AutoConfigureDataJdbc
