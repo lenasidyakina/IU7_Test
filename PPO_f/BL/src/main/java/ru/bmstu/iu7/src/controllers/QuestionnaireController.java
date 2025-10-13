@@ -76,24 +76,18 @@ public class QuestionnaireController
         if (user == null) {
             throw new Exception("User cannot be null");
         }
-        System.out.println("create_questionnaire dbg 1" );
         List<AExtendedAnswer> extended_answers = information.getExtendedAnswers();
         for (AExtendedAnswer extendedAnswer : extended_answers){
-            System.out.println("create_questionnaire dbg 24" );
 
             String question = extendedAnswer.getQuestion().getQuestion();
-            System.out.println("AQuestion " + question);
             List<ATag> tags = extendedAnswer.getQuestion().getTags();
-            System.out.println("Atags " + tags.getFirst() );
             List<ATag> list = m_ml.get_tags_names(
                     question,
                     extendedAnswer.getAnswer(),
                     tags);
             extendedAnswer.setTags(list);
-            System.out.println("List " + list.getFirst() );
         }
         information.setExtendedAnswers(extended_answers);
-        System.out.println("create_questionnaire dbg 25" );
 
         List<AExtendedAnswer> extended_answers_s = (List<AExtendedAnswer>)search_information.getExtendedAnswers();
         for (AExtendedAnswer extendedAnswer : extended_answers_s){
@@ -102,10 +96,8 @@ public class QuestionnaireController
 
         }
         search_information.setExtendedAnswers(extended_answers_s);
-        System.out.println("create_questionnaire dbg 3" );
 
         AQuestionnaire questionnaire = m_questRepository.createQuestionnaire(user, information, search_information);
-        System.out.println("create_questionnaire dbg 4" );
 
         m_active_questionnaire = questionnaire;
         return questionnaire;

@@ -42,7 +42,6 @@ public class QuestionnaireManager {
     public AQuestionnaire create(AUser user, AInformation information, AInformation search_information) {
         try {
             if (user == null || information == null || search_information == null) {
-                System.out.println("AQuestionnaire create dbg 1" );
                 return null;
             }
             if (logger != null) logger.info("Creating questionnaire for user {}", user.getName());
@@ -50,7 +49,6 @@ public class QuestionnaireManager {
             if (logger != null) logger.info("Questionnaire created with id {}", quest.getId());
             return quest;
         } catch (Exception e) {
-            System.out.println("AQuestionnaire create dbg 2 " + e.getMessage() );
             if (logger != null) logger.error("Failed to create questionnaire for user {}: {}", user.getName(), e.getMessage(), e);
             return null;
         }

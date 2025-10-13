@@ -318,17 +318,11 @@ public class DatabaseTest {
     @DatabaseSetup("classpath:db_test_data.xml")
     public void create() throws Exception {
 
-                  System.out.println("LLLLLLLLLLLLLLOG   create 1");
 
         DBAPI api = buildDBAPI();
         var components = buildQuestionnaireComponents(api);
 
-                  System.out.println("LLLLLLLLLLLLLLOG   create 2");
-
-
         QuestionnaireManager questionnaireManager = components.manager();
-
-                          System.out.println("LLLLLLLLLLLLLLOG   create 3");
 
 
         UserRepository xuserRepository = new UserRepository(userRepository);
@@ -336,15 +330,11 @@ public class DatabaseTest {
 
         AUser user = userManager.register("LenaCreate", "12345", 20, true);
 
-                          System.out.println("LLLLLLLLLLLLLLOG   create 4" + user.getId());
-
             
         ATag walking_tag = questionnaireManager.append_tag("walking");
         ATag watching_tag = questionnaireManager.append_tag("watching TV");
         ATag swimming_tag = questionnaireManager.append_tag("swimming");
         ATag sleeping_tag = questionnaireManager.append_tag("sleeping");
-
-                          System.out.println("LLLLLLLLLLLLLLOG   create 5" + sleeping_tag.getId());
 
 
         questionnaireManager.append_question(false,
@@ -358,8 +348,6 @@ public class DatabaseTest {
         AQuestionnaire q = createQuestionnaire(questionnaireManager, user,
                 "swimming", "I like walking my dog.",
                 "swimming", "I like walking my dog.");
-
-                                          System.out.println("LLLLLLLLLLLLLLOG   create 6" + q.getId());
 
 
         AQuestionnaire fromDB = new QuestionnaireRepository(api).findQuestionnaire(q.getId());
