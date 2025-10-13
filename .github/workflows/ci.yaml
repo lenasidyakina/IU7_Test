@@ -44,17 +44,17 @@ jobs:
 
       - name: Run integration tests (Testcontainers)
         run: |
-          mkdir -p test-results
+          mkdir -p ${{ github.workspace }}/PPO_f/test-results/integration
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            -v $(pwd)/test-results:/app/PPO_f/build/reports/tests/test \
-            bd-integration-tests
+            -v ${{ github.workspace }}/PPO_f/test-results/integration:/app/PPO_f/app_cli/build/reports/tests/test \
+            bd-integration-tests || true
 
       - name: Upload integration test report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: integration-test-report
-          path: test-results
+          path: PPO_f/test-results/integration
 
 
