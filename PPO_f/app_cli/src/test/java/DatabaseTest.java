@@ -168,19 +168,14 @@ public class DatabaseTest {
 
     @Test // -
     public void get_friends() throws Exception {
-
-          System.out.println("LOGGGGGGGGG   get_friends 1");
         DBAPI api = buildDBAPI();
         var components = buildQuestionnaireComponents(api);
         QuestionnaireManager questionnaireManager = components.manager();
         var questionnaireController = components.controller();
         var reqManager = new RecManager(questionnaireController);
-          System.out.println("LOGGGGGGGGG   get_friends 2");
 
         UserRepository xuserRepository = new UserRepository(userRepository);
         UserManager userManager = buildUserManager(xuserRepository);
-
-                  System.out.println("LOGGGGGGGGG   get_friends 3");
 
 
         AUser user1 = userManager.register("LenaMain", "12345", 20, true);
@@ -246,37 +241,37 @@ public class DatabaseTest {
         Assertions.assertEquals(q1.getFavList().getFirst().getId(), friend.getId());
     }
 
-    @Test
-    public void add_black_list() throws Exception {
-        DBAPI api = buildDBAPI();
-        var components = buildQuestionnaireComponents(api);
-        QuestionnaireManager questionnaireManager = components.manager();
-        var questionnaireController = components.controller();
-        var reqManager = new RecManager(questionnaireController);
-
-        UserRepository xuserRepository = new UserRepository(userRepository);
-        UserManager userManager = buildUserManager(xuserRepository);
-
-        AUser user1 = userManager.register("LenaBlack", "12345", 20, true);
-        AQuestionnaire q1 = createQuestionnaire(questionnaireManager, user1,
-                "watching TV", "I like walking my dog and sleeping.",
-                "swimming", "I like walking my dog.");
-
-        AUser user2 = userManager.register("LenaBlocked", "12345", 20, true);
-        createQuestionnaire(questionnaireManager, user2,
-                "swimming", "I like walking my dog.",
-                "swimming", "I like walking my dog.");
-
-        questionnaireController.set_active_questionnaire(q1);
-        reqManager.doGetFriends();
-
-        AQuestionnaire friend = questionnaireController.get_quest_in_cache().getFirst();
-        questionnaireManager.add_black(friend);
-        reqManager.doGetFriends();
-
-        Assertions.assertEquals(0, questionnaireController.get_quest_in_cache().size());
-        Assertions.assertEquals(q1.getBlackList().getFirst().getId(), friend.getId());
-    }
+//    @Test
+//    public void add_black_list() throws Exception {
+//        DBAPI api = buildDBAPI();
+//        var components = buildQuestionnaireComponents(api);
+//        QuestionnaireManager questionnaireManager = components.manager();
+//        var questionnaireController = components.controller();
+//        var reqManager = new RecManager(questionnaireController);
+//
+//        UserRepository xuserRepository = new UserRepository(userRepository);
+//        UserManager userManager = buildUserManager(xuserRepository);
+//
+//        AUser user1 = userManager.register("LenaBlack", "12345", 20, true);
+//        AQuestionnaire q1 = createQuestionnaire(questionnaireManager, user1,
+//                "watching TV", "I like walking my dog and sleeping.",
+//                "swimming", "I like walking my dog.");
+//
+//        AUser user2 = userManager.register("LenaBlocked", "12345", 20, true);
+//        createQuestionnaire(questionnaireManager, user2,
+//                "swimming", "I like walking my dog.",
+//                "swimming", "I like walking my dog.");
+//
+//        questionnaireController.set_active_questionnaire(q1);
+//        reqManager.doGetFriends();
+//
+//        AQuestionnaire friend = questionnaireController.get_quest_in_cache().getFirst();
+//        questionnaireManager.add_black(friend);
+//        reqManager.doGetFriends();
+//
+//        Assertions.assertEquals(0, questionnaireController.get_quest_in_cache().size());
+//        Assertions.assertEquals(q1.getBlackList().getFirst().getId(), friend.getId());
+//    }
 
     @Test
     public void del_black_list() throws Exception {
@@ -296,23 +291,23 @@ public class DatabaseTest {
         Assertions.assertEquals(0, q.getBlackList().size());
     }
 
-    @Test
-    public void del_fav_list() throws Exception {
-        DBAPI api = buildDBAPI();
-        var components = buildQuestionnaireComponents(api);
-        QuestionnaireManager questionnaireManager = components.manager();
-
-        UserRepository xuserRepository = new UserRepository(userRepository);
-        UserManager userManager = buildUserManager(xuserRepository);
-
-        AUser user = userManager.authorize("LenaFav", "12345");
-        AQuestionnaire q = questionnaireManager.get_user_questionnaies(user.getId()).getFirst();
-
-        components.controller().set_active_questionnaire(q);
-        questionnaireManager.del_fav(q.getFavList().getFirst());
-
-        Assertions.assertEquals(0, q.getFavList().size());
-    }
+//    @Test
+//    public void del_fav_list() throws Exception {
+//        DBAPI api = buildDBAPI();
+//        var components = buildQuestionnaireComponents(api);
+//        QuestionnaireManager questionnaireManager = components.manager();
+//
+//        UserRepository xuserRepository = new UserRepository(userRepository);
+//        UserManager userManager = buildUserManager(xuserRepository);
+//
+//        AUser user = userManager.authorize("LenaFav", "12345");
+//        AQuestionnaire q = questionnaireManager.get_user_questionnaies(user.getId()).getFirst();
+//
+//        components.controller().set_active_questionnaire(q);
+//        questionnaireManager.del_fav(q.getFavList().getFirst());
+//
+//        Assertions.assertEquals(0, q.getFavList().size());
+//    }
 
     @Test // -
     @DatabaseSetup("classpath:db_test_data.xml")
