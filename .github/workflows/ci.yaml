@@ -45,7 +45,7 @@ jobs:
             --stacktrace --info \
             -Dorg.gradle.report.outputDir=./test-results/integration \
             -Dspring.profiles.active=test \
-            -Dspring.datasource.url=jdbc:postgresql://localhost:5432/testdb \
+            -Dspring.datasource.url=jdbc:postgresql://postgres:5432/testdb \
             -Dspring.datasource.username=testuser \
             -Dspring.datasource.password=testpassword
 
