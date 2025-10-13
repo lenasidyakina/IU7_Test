@@ -5,12 +5,11 @@ on:
     branches: [ main, lab2 ]
 
 jobs:
-  # ---------- 3. E2E tests ----------
   e2e-tests:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15-alpine
+        image: postgres:15
         env:
           POSTGRES_USER: testuser
           POSTGRES_PASSWORD: testpassword
@@ -30,8 +29,8 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: 21
-          distribution: temurin
+          java-version: '21'
+          distribution: 'temurin'
 
       - name: Build JAR for E2E
         run: |
@@ -40,18 +39,25 @@ jobs:
           ./gradlew :app_cli:build
           ls -l app_cli/build/libs
 
-      - name: Build Docker image for E2E test
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Python dependencies
+        run: pip install psycopg2-binary
+
+      - name: Build Docker image for E2E tests
         run: |
-          docker build -t e2e-test-image -f ./Dockerfile.e2e .
+          docker build -t e2e-test-image -f Dockerfile.e2e .
 
       - name: Run E2E tests inside Docker
         run: |
           docker run --rm \
-            -e POSTGRES_HOST=host.docker.internal \
+            -e POSTGRES_HOST=postgres \
             -e POSTGRES_PORT=5432 \
             -e POSTGRES_USER=testuser \
             -e POSTGRES_PASSWORD=testpassword \
             -e POSTGRES_DB=testdb \
             -v ${{ github.workspace }}/PPO_f:/app/PPO_f \
             e2e-test-image
-
