@@ -15,6 +15,7 @@ COPY PPO_f/BL PPO_f/BL
 # Даем права на запуск gradlew
 RUN chmod +x PPO_f/gradlew
 
+
 # Ставим все зависимости и билдим проект
 RUN ./PPO_f/gradlew :DB:assemble :BL:assemble --no-daemon
 
