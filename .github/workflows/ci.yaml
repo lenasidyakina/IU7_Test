@@ -22,6 +22,5 @@ jobs:
       run: chmod +x ./PPO_f/gradlew
 
     - name: Run unit tests for DB and BL modules
-      run: ./PPO_f/gradlew :DB:test :BL:test
-
-      
+      working-directory: ./PPO_f
+      run: ./gradlew :DB:test :BL:test
