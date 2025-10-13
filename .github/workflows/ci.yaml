@@ -5,47 +5,9 @@ on:
     branches: [ main, lab2 ]
 
 jobs:
-  unit-tests:
+  e2e-tests:
     runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Build Docker image for unit tests
-      run: docker build -t unit-tests-image -f ./Dockerfile.unit .
-
-    - name: Run unit tests in Docker
-      run: |
-        mkdir -p ${{ github.workspace }}/PPO_f/test-results/unit
-        docker run --rm \
-          -v ${{ github.workspace }}/PPO_f/test-results/unit:/app/PPO_f/test-results \
-          unit-tests-image
-    - name: Upload unit test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: unit-test-reports
-        path: PPO_f/test-results/unit
-
-  # ---------- 2. Integration tests ----------
-  integration-tests:
-    runs-on: ubuntu-latest
-    needs: unit-tests
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpassword
-          POSTGRES_DB: testdb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U testuser -d testdb"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
@@ -57,26 +19,22 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Grant execution permission to Gradle wrapper
+      - name: Build CLI jar
         run: |
           cd PPO_f
           chmod +x gradlew
+          ./gradlew :app_cli:build
 
-      - name: Run integration tests
-        run: |
-          cd PPO_f
-          mkdir -p test-results/integration
-          ./gradlew :app_cli:test \
-            --stacktrace --info \
-            -Dorg.gradle.report.outputDir=./test-results/integration \
-            -Dspring.profiles.active=test \
-            -Dspring.datasource.url=jdbc:postgresql://postgres:5432/testdb \
-            -Dspring.datasource.username=testuser \
-            -Dspring.datasource.password=testpassword
-
-      - name: Upload integration test results
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
         with:
-          name: integration-test-reports
-          path: PPO_f/test-results/integration
+          python-version: '3.10'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install testcontainers psycopg2-binary
+
+      - name: Run E2E tests
+        working-directory: PPO_f
+        run: python main.py
