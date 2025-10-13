@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Unit Tests DB & BL
 
 on:
   pull_request:
@@ -9,18 +9,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         distribution: temurin
-        java-version: 17
+        java-version: '17'
+
+    - name: Verify Java version
+      run: java -version
 
     - name: Grant execute permission for Gradle wrapper
       run: chmod +x ./PPO_f/gradlew
 
-    - name: Run unit tests for DB and BL modules
+    - name: Build & run tests
       working-directory: ./PPO_f
-      run: ./gradlew :DB:test :BL:test
+      run: ./gradlew :DB:test :BL:test --stacktrace --info
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: unit-test-reports
+        path: |
+          ./PPO_f/DB/build/test-results/
+          ./PPO_f/BL/build/test-results/
