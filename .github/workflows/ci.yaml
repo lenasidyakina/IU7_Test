@@ -11,13 +11,13 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpassword
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
           POSTGRES_DB: testdb
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U testuser -d testdb"
+          --health-cmd="pg_isready -U test -d testdb"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -26,24 +26,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Docker image for integration tests
-        run: docker build -t bd-integration-tests -f ./Dockerfile.integration .
-
-      - name: Run integration tests in Docker
-        run: |
-          mkdir -p ${{ github.workspace }}/PPO_f/test-results/integration
-          docker run --rm \
-            -v ${{ github.workspace }}/PPO_f/test-results/integration:/app/test-results \
-            -e SPRING_PROFILES_ACTIVE=test \
-            -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/testdb \
-            -e SPRING_DATASOURCE_USERNAME=testuser \
-            -e SPRING_DATASOURCE_PASSWORD=testpassword \
-            bd-integration-tests \
-            bash -c "mkdir -p /app/test-results && ./gradlew :app_cli:test --stacktrace --info -Dorg.gradle.report.outputDir=/app/test-results"
-
-      - name: Upload integration test results
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          name: integration-test-reports
-          path: PPO_f/test-results/integration
+          distribution: temurin
+          java-version: 17
+
+      - name: Run integration tests
+        env:
+          SPRING_PROFILES_ACTIVE: test
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
+          SPRING_DATASOURCE_USERNAME: test
+          SPRING_DATASOURCE_PASSWORD: test
+        run: |
+          cd PPO_F
+          ./gradlew :app_cli:test --stacktrace --info
