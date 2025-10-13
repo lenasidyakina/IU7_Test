@@ -283,6 +283,17 @@ public class DatabaseTest {
         UserManager userManager = buildUserManager(xuserRepository);
 
         AUser user = userManager.register("LenaCreate", "12345", 20, true);
+            
+        ATag walking_tag = questionnaireManager.append_tag("walking");
+        ATag watching_tag = questionnaireManager.append_tag("watching TV");
+        ATag swimming_tag = questionnaireManager.append_tag("swimming");
+        ATag sleeping_tag = questionnaireManager.append_tag("sleeping");
+
+        questionnaireManager.append_question(false,
+                "Do you love swimming or watching TV?", new ArrayList<>(Arrays.asList(watching_tag, swimming_tag)));
+        questionnaireManager.append_question(true,
+                "How do you like to spend your time?", new ArrayList<>(Arrays.asList(walking_tag, sleeping_tag)));
+        
         AQuestionnaire q = createQuestionnaire(questionnaireManager, user,
                 "swimming", "I like walking my dog.",
                 "swimming", "I like walking my dog.");
