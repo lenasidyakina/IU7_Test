@@ -175,7 +175,7 @@ test {
     }
 
     // После тестов формируем Allure report
-    finalizedBy("allureReport")
+    //finalizedBy("allureReport")
 }
 
 // Задача генерации отчёта
