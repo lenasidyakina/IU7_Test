@@ -46,7 +46,7 @@ jobs:
         run: |
           mkdir -p test-results
           docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock \  # ✅ доступ Testcontainers к Docker
+            -v /var/run/docker.sock:/var/run/docker.sock \
             -v $(pwd)/test-results:/app/PPO_f/build/reports/tests/test \
             bd-integration-tests
 
@@ -56,4 +56,5 @@ jobs:
         with:
           name: integration-test-report
           path: test-results
+
 
