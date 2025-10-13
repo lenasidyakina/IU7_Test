@@ -10,5 +10,5 @@ jobs:
 
     steps:
     - name: Build test
-      run: java "-Dfile.encoding=UTF-8" -jar ".\app_cli\build\libs\app_cli-1.0-SNAPSHOT.jar"
+      run: ./PPO_f/gradlew :BL:test :DB:test
       
