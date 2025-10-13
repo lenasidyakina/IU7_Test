@@ -18,7 +18,7 @@ jobs:
 
     - name: Run unit tests in Docker
       run: |
-        mkdir -p test-results
+        mkdir -p ${{ github.workspace }}/PPO_f/test-results
         docker run --rm \
           -v ${{ github.workspace }}/PPO_f/test-results:/app/PPO_f/test-results \
           unit-tests-image
