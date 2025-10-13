@@ -7,6 +7,20 @@ on:
 jobs:
   integration-tests:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U testuser -d testdb"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - name: Checkout code
@@ -19,8 +33,11 @@ jobs:
         run: |
           mkdir -p ${{ github.workspace }}/PPO_f/test-results/integration
           docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock \
             -v ${{ github.workspace }}/PPO_f/test-results/integration:/app/test-results \
+            -e SPRING_PROFILES_ACTIVE=test \
+            -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/testdb \
+            -e SPRING_DATASOURCE_USERNAME=postgres \
+            -e SPRING_DATASOURCE_PASSWORD=postgres \
             bd-integration-tests \
             bash -c "mkdir -p /app/test-results && ./gradlew :app_cli:test --stacktrace --info -Dorg.gradle.report.outputDir=/app/test-results"
 
