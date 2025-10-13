@@ -186,7 +186,8 @@ public class DatabaseTest {
                           System.out.println("LOGGGGGGGGG   get_friends 4");
 
 
-        AUser user2 = userManager.register("LenaFriend", "12345", 20, true);
+        AUser user2 = userManager.register("LenaFriend", "123456", 20, true);
+        System.out.println("user" + user2.getId());
         createQuestionnaire(questionnaireManager, user2,
                 "swimming", "I like walking my dog.",
                 "swimming", "I like walking my dog.");
