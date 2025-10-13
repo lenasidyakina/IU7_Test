@@ -146,30 +146,47 @@ public class DatabaseTest {
     @Test // -
     public void get_friends() throws Exception {
 
-          System.out.println("LOGGGGGGGGG   add_fav_list");
+          System.out.println("LOGGGGGGGGG   get_friends 1");
         DBAPI api = buildDBAPI();
         var components = buildQuestionnaireComponents(api);
         QuestionnaireManager questionnaireManager = components.manager();
         var questionnaireController = components.controller();
         var reqManager = new RecManager(questionnaireController);
+          System.out.println("LOGGGGGGGGG   get_friends 2");
 
         UserRepository xuserRepository = new UserRepository(userRepository);
         UserManager userManager = buildUserManager(xuserRepository);
+
+                  System.out.println("LOGGGGGGGGG   get_friends 3");
+
 
         AUser user1 = userManager.register("LenaMain", "12345", 20, true);
         AQuestionnaire q1 = createQuestionnaire(questionnaireManager, user1,
                 "watching TV", "I like walking my dog and sleeping.",
                 "swimming", "I like walking my dog.");
 
+                          System.out.println("LOGGGGGGGGG   get_friends 4");
+
+
         AUser user2 = userManager.register("LenaFriend", "12345", 20, true);
         createQuestionnaire(questionnaireManager, user2,
                 "swimming", "I like walking my dog.",
                 "swimming", "I like walking my dog.");
 
+                          System.out.println("LOGGGGGGGGG   get_friends 5");
+
+
         questionnaireController.set_active_questionnaire(q1);
         reqManager.doGetFriends();
 
+                  System.out.println("LOGGGGGGGGG   get_friends 6");
+
+
         List<AQuestionnaire> friends = questionnaireController.get_quest_in_cache();
+
+          System.out.println("LOGGGGGGGGG   get_friends 1");
+
+
         Assertions.assertEquals("LenaFriend", friends.getFirst().getUser().getName());
     }
 
@@ -277,19 +294,35 @@ public class DatabaseTest {
     @Test // -
     @DatabaseSetup("classpath:db_test_data.xml")
     public void create() throws Exception {
+
+                  System.out.println("LLLLLLLLLLLLLLOG   create 1");
+
         DBAPI api = buildDBAPI();
         var components = buildQuestionnaireComponents(api);
+
+                  System.out.println("LLLLLLLLLLLLLLOG   create 2");
+
+
         QuestionnaireManager questionnaireManager = components.manager();
+
+                          System.out.println("LLLLLLLLLLLLLLOG   create 3");
+
 
         UserRepository xuserRepository = new UserRepository(userRepository);
         UserManager userManager = buildUserManager(xuserRepository);
 
         AUser user = userManager.register("LenaCreate", "12345", 20, true);
+
+                          System.out.println("LLLLLLLLLLLLLLOG   create 4" + user.getId());
+
             
         ATag walking_tag = questionnaireManager.append_tag("walking");
         ATag watching_tag = questionnaireManager.append_tag("watching TV");
         ATag swimming_tag = questionnaireManager.append_tag("swimming");
         ATag sleeping_tag = questionnaireManager.append_tag("sleeping");
+
+                          System.out.println("LLLLLLLLLLLLLLOG   create 5" + sleeping_tag.getId());
+
 
         questionnaireManager.append_question(false,
                 "Do you love swimming or watching TV?", new ArrayList<>(Arrays.asList(watching_tag, swimming_tag)));
@@ -299,6 +332,9 @@ public class DatabaseTest {
         AQuestionnaire q = createQuestionnaire(questionnaireManager, user,
                 "swimming", "I like walking my dog.",
                 "swimming", "I like walking my dog.");
+
+                                          System.out.println("LLLLLLLLLLLLLLOG   create 6" + q.getId());
+
 
         AQuestionnaire fromDB = new QuestionnaireRepository(api).findQuestionnaire(q.getId());
         Assertions.assertEquals(q.getUser().getName(), fromDB.getUser().getName());
