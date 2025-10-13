@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="testRunner" value="PLATFORM" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/BL" />
+            <option value="$PROJECT_DIR$/DB" />
+            <option value="$PROJECT_DIR$/DB_MongoDB" />
+            <option value="$PROJECT_DIR$/DB_Oracle" />
+            <option value="$PROJECT_DIR$/DB_SQLite" />
+            <option value="$PROJECT_DIR$/ML" />
+            <option value="$PROJECT_DIR$/ML_stab" />
+            <option value="$PROJECT_DIR$/app_cli" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

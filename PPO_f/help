@@ -1,0 +1,5 @@
+chcp 65001
+java "-Dfile.encoding=UTF-8" -jar ".\app_cli\build\libs\app_cli-1.0-SNAPSHOT.jar"
+./gradlew :BL:build
+./gradlew :DB:build
+./gradlew :ML:build
