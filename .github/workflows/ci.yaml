@@ -14,7 +14,7 @@ jobs:
 
     - name: Build Docker image for unit tests
       run: |
-        docker build -t unit-tests-image -f PPO_f/github/workflows/Dockerfile.unit .
+        docker build -t unit-tests-image -f ./Dockerfile.unit .
 
     - name: Run unit tests in Docker
       run: |
