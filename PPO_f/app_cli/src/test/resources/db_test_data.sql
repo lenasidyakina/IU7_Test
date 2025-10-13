@@ -42,10 +42,3 @@ INSERT INTO question_tags(question_id, tags_id) VALUES
 (1, 0),
 (1, 3);
 
-DROP TABLE IF EXISTS extended_answer_tags CASCADE;
-
--- Создаём пустую таблицу без внешних ключей, просто чтобы Hibernate не ругался
-CREATE TABLE extended_answer_tags (
-                                      extended_answer_id BIGINT,
-                                      tags_id BIGINT
-);
