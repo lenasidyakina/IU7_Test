@@ -1,0 +1,10 @@
+name: Tests with Report
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Build test
+      run: java "-Dfile.encoding=UTF-8" -jar ".\app_cli\build\libs\app_cli-1.0-SNAPSHOT.jar"
+      
