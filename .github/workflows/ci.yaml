@@ -8,7 +8,6 @@ jobs:
     # ---------- 3. E2E tests ----------
   e2e-tests:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -19,25 +18,22 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Build JAR for e2e test
+      - name: Build JAR for E2E
         run: |
           cd PPO_f
           chmod +x gradlew
           ./gradlew :app_cli:build
-          ls -l app_cli/build/libs  # покажем, что jar реально создан
+          ls -l app_cli/build/libs
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install Python dependencies
-        run: pip install psycopg2-binary testcontainers
-
-      - name: Run E2E tests
+      - name: Build Docker image for E2E test
         run: |
-          cd PPO_f
-          python3 main.py
+          docker build -t e2e-test-image -f ./PPO_f/Dockerfile.e2e ./PPO_f
+
+      - name: Run E2E tests inside Docker
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/PPO_f/app_cli/build/libs:/app_cli/build/libs \
+            e2e-test-image
 
 
       - name: Set up Python 3.10
