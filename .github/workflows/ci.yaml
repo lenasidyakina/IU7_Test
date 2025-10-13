@@ -16,7 +16,7 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Build Docker test image
-      run: docker build -t db-bl-tests -f Dockerfile.tests .
+      run: docker build -t db-bl-tests -f Dockerfile.unit .
 
     - name: Run tests in Docker container
       run: |
