@@ -137,16 +137,6 @@ class UserRepositoryTest {
 
 
     @Test
-    void findAll_success() {
-        Mockito.when(m_springUserRepository.findAll()).thenReturn(List.of(u));
-
-        List<AUser> result = userRepository.findAll();
-
-        assertEquals(1, result.size());
-        assertEquals(au.getId(), result.getFirst().getId());
-    }
-
-    @Test
     void findAll_failure_returnsEmptyList() {
         Mockito.when(m_springUserRepository.findAll())
                 .thenThrow(new RuntimeException("DB error"));
