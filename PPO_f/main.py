@@ -11,7 +11,7 @@ os.environ["TESTCONTAINERS_RYUK_DISABLED"] = "true"
 
 
 class TestE2E(unittest.TestCase):
-    JAR_PATH = "PPO_f/app_cli/build/libs/app_cli-1.0-SNAPSHOT.jar"
+    JAR_PATH = os.path.join("PPO_f", "app_cli", "build", "libs", "app_cli-1.0-SNAPSHOT.jar")
 
     def setUp(self):
             # 1. Поднимаем PostgreSQL контейнер
