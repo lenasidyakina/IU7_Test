@@ -1,7 +1,6 @@
 # Используем JDK 21
 FROM eclipse-temurin:21-jdk
 
-# Рабочая директория
 WORKDIR /app
 
 # Копируем весь проект
@@ -10,10 +9,10 @@ COPY PPO_f PPO_f
 # Даем права на gradlew
 RUN chmod +x PPO_f/gradlew
 
-# Переходим в директорию приложения
 WORKDIR /app/PPO_f
 
-# Не ставим ENTRYPOINT — будем запускать gradlew через bash из GitHub Actions
-# Т.е. команда будет вида:
-# docker run ... bash -c "./gradlew :app_cli:test -Dorg.gradle.report.outputDir=/app/test-results"
+# Переменная окружения для Spring Boot, чтобы использовался профиль test
+ENV SPRING_PROFILES_ACTIVE=test
 
+# Тесты будем запускать из CI/CD через команду:
+# bash -c "./gradlew :app_cli:test -Dorg.gradle.report.outputDir=/app/test-results"
