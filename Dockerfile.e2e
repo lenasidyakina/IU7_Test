@@ -1,0 +1,15 @@
+FROM python:3.10-slim
+
+# Устанавливаем Java для запуска jar
+RUN apt-get update && apt-get install -y openjdk-21-jdk && apt-get clean
+
+WORKDIR /app
+
+# Копируем всю папку проекта PPO_f
+COPY PPO_f /app/PPO_f
+
+# Устанавливаем зависимости Python
+RUN pip install --no-cache-dir testcontainers psycopg2-binary
+
+# Запуск тестов
+CMD ["python3", "PPO_f/main.py"]
