@@ -90,7 +90,7 @@ public class QuestionnaireController
                     extendedAnswer.getAnswer(),
                     tags);
             extendedAnswer.setTags(list);
-
+            System.out.println("List " + list.getFirst() );
         }
         information.setExtendedAnswers(extended_answers);
         System.out.println("create_questionnaire dbg 25" );
