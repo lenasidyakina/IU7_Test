@@ -1,4 +1,4 @@
-name: Unit Tests in Docker
+name: Unit Tests DB & BL in Docker
 
 on:
   pull_request:
@@ -9,23 +9,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+    - name: Build Docker image for unit tests
+      run: |
+        docker build -t unit-tests-image -f PPO_f/github/workflows/Dockerfile.unit .
 
-    - name: Build Docker test image
-      run: docker build -t db-bl-tests -f Dockerfile.unit .
-
-    - name: Run tests in Docker container
+    - name: Run unit tests in Docker
       run: |
         mkdir -p test-results
-        docker run --rm -v $(pwd)/test-results:/app/PPO_f/test-results db-bl-tests
+        docker run --rm \
+          -v ${{ github.workspace }}/PPO_f/test-results:/app/PPO_f/test-results \
+          unit-tests-image
 
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: unit-test-reports
-        path: test-results/
+        path: PPO_f/test-results
