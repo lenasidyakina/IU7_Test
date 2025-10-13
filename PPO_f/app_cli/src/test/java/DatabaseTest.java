@@ -143,8 +143,10 @@ public class DatabaseTest {
         Assertions.assertEquals(expected.getId(), actual.getId());
     }
 
-    @Test
+    @Test // -
     public void get_friends() throws Exception {
+
+          System.out.println("LOGGGGGGGGG   add_fav_list");
         DBAPI api = buildDBAPI();
         var components = buildQuestionnaireComponents(api);
         QuestionnaireManager questionnaireManager = components.manager();
@@ -272,7 +274,7 @@ public class DatabaseTest {
         Assertions.assertEquals(0, q.getFavList().size());
     }
 
-    @Test
+    @Test // -
     @DatabaseSetup("classpath:db_test_data.xml")
     public void create() throws Exception {
         DBAPI api = buildDBAPI();
