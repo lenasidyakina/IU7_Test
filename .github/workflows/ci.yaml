@@ -27,25 +27,10 @@ jobs:
 
       - name: Build Docker image for E2E test
         run: |
-          docker build -t e2e-test-image -f ./PPO_f/Dockerfile.e2e ./PPO_f
+          docker build -t e2e-test-image -f ./Dockerfile.e2e .
 
       - name: Run E2E tests inside Docker
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}/PPO_f/app_cli/build/libs:/app_cli/build/libs \
+            -v ${{ github.workspace }}/PPO_f/app_cli/build/libs:/app/PPO_f/app_cli/build/libs \
             e2e-test-image
-
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install testcontainers psycopg2-binary
-
-      - name: Run E2E tests
-        working-directory: PPO_f
-        run: python main.py
