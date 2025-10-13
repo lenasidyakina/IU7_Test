@@ -114,6 +114,11 @@ public class DatabaseTest {
                                                String shortAnswer2, String longAnswer2) throws Exception {
         AInformation info1 = createInformation(questionnaireManager, shortAnswer1, longAnswer1);
         AInformation info2 = createInformation(questionnaireManager, shortAnswer2, longAnswer2);
+
+        System.out.println("createQuestionnaire info1" + qinfo1.getId());
+        System.out.println("createQuestionnaire info2" + qinfo2.getId());
+        System.out.println("createQuestionnaire user" + user.getId());
+
         return questionnaireManager.create(user, info2, info1);
     }
 
@@ -326,6 +331,8 @@ public class DatabaseTest {
 
         questionnaireManager.append_question(false,
                 "Do you love swimming or watching TV?", new ArrayList<>(Arrays.asList(watching_tag, swimming_tag)));
+
+
         questionnaireManager.append_question(true,
                 "How do you like to spend your time?", new ArrayList<>(Arrays.asList(walking_tag, sleeping_tag)));
         
