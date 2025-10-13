@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ML_port implements IML_port {
+    System.out.println("Start ML_port" );
     private String olamaHost;
     private final AppLogger logger;
 
