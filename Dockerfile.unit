@@ -1,23 +1,19 @@
-# Используем JDK 17 для сборки и тестов
 FROM eclipse-temurin:17-jdk
 
-# Рабочая директория внутри контейнера
 WORKDIR /app
 
-# Копируем Gradle wrapper и конфигурацию
-COPY PPO_f/gradlew PPO_f/gradlew
-COPY PPO_f/gradle PPO_f/gradle
-
-# Копируем исходники
-COPY PPO_f/DB PPO_f/DB
-COPY PPO_f/BL PPO_f/BL
+# Копируем весь проект PPO_f целиком
+COPY PPO_f PPO_f
 
 # Даем права на запуск gradlew
 RUN chmod +x PPO_f/gradlew
 
+# Проверяем наличие файлов
+RUN ls -l PPO_f
 
-# Ставим все зависимости и билдим проект
-RUN ./PPO_f/gradlew :DB:assemble :BL:assemble --no-daemon
+# Ставим зависимости и билдим проект
+WORKDIR /app/PPO_f
+RUN ./gradlew :DB:assemble :BL:assemble --no-daemon
 
 # Точка входа — запуск unit-тестов
-ENTRYPOINT ["./PPO_f/gradlew", ":DB:test", ":BL:test", "--stacktrace", "--info"]
+ENTRYPOINT ["./gradlew", ":DB:test", ":BL:test", "--stacktrace", "--info"]
