@@ -115,7 +115,8 @@ public class DatabaseTest {
         AInformation info1 = createInformation(questionnaireManager, shortAnswer1, longAnswer1);
         AInformation info2 = createInformation(questionnaireManager, shortAnswer2, longAnswer2);
 
-        System.out.println("createQuestionnaire info1" + info1.getId());
+        System.out.println("createQuestionnaire info1" + info1.getExtendedAnswers().getFirst());
+        System.out.println("createQuestionnaire info1" + info1.getVariantAnswers().getFirst());
         System.out.println("createQuestionnaire info2" + info2.getId());
         System.out.println("createQuestionnaire user" + user.getId());
 
