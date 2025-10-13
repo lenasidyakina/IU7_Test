@@ -150,7 +150,7 @@ dependencies {
     // Локальные модули
     implementation project(':BL')
     implementation project(':DB')
-    implementation project(':ML')
+    implementation project(':ML_stab')
 }
 
 // Папка для результатов Allure
