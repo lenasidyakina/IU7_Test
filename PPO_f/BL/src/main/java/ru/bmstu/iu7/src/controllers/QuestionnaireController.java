@@ -82,9 +82,9 @@ public class QuestionnaireController
             System.out.println("create_questionnaire dbg 24" );
 
             String question = extendedAnswer.getQuestion().getQuestion();
-            System.out.println("AQuestion " + question.getId() );
+            System.out.println("AQuestion " + question);
             List<ATag> tags = extendedAnswer.getQuestion().getTags();
-            System.out.println("Atags " + tags.getFirst().getId() );
+            System.out.println("Atags " + tags.getFirst() );
             List<ATag> list = m_ml.get_tags_names(
                     question,
                     extendedAnswer.getAnswer(),
