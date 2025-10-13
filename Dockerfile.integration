@@ -1,18 +1,22 @@
-# Используем JDK 21
-FROM eclipse-temurin:21-jdk
+# Используем JDK 17
+FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-# Копируем весь проект
-COPY PPO_f PPO_f
+# Копируем только файлы Gradle и настройки
+COPY settings.gradle.kts ./
+COPY build.gradle.kts ./
+COPY gradle ./gradle
+COPY gradlew ./
 
-# Даем права на gradlew
-RUN chmod +x PPO_f/gradlew
+# Копируем все исходники модулей
+COPY PPO_F ./PPO_F
 
-WORKDIR /app/PPO_f
+# Делаем скрипт исполняемым
+RUN chmod +x ./gradlew
 
-# Переменная окружения для Spring Boot, чтобы использовался профиль test
-ENV SPRING_PROFILES_ACTIVE=test
+# Собираем все модули без тестов
+RUN ./gradlew build -x test
 
-# Тесты будем запускать из CI/CD через команду:
-# bash -c "./gradlew :app_cli:test -Dorg.gradle.report.outputDir=/app/test-results"
+# По умолчанию запускаем тесты в app_cli
+CMD ["./gradlew", ":app_cli:test"]
