@@ -132,11 +132,6 @@ public class DatabaseTest {
         AInformation info1 = createInformation(questionnaireManager, shortAnswer1, longAnswer1);
         AInformation info2 = createInformation(questionnaireManager, shortAnswer2, longAnswer2);
 
-        System.out.println("createQuestionnaire info1" + info1.getExtendedAnswers().getFirst());
-        System.out.println("createQuestionnaire info1" + info1.getVariantAnswers().getFirst());
-        System.out.println("createQuestionnaire info2" + info2.getId());
-        System.out.println("createQuestionnaire user" + user.getId());
-
         return questionnaireManager.create(user, info2, info1);
     }
 
@@ -183,30 +178,22 @@ public class DatabaseTest {
                 "watching TV", "I like walking my dog and sleeping.",
                 "swimming", "I like walking my dog.");
 
-                          System.out.println("LOGGGGGGGGG   get_friends 4");
 
 
         AUser user2 = userManager.register("LenaFriendd", "123456", 20, true);
-        System.out.println("user" + user2.getId());
         createQuestionnaire(questionnaireManager, user2,
                 "swimming", "I like walking my dog.",
                 "swimming", "I like walking my dog.");
-
-                          System.out.println("LOGGGGGGGGG   get_friends 5");
 
 
         questionnaireController.set_active_questionnaire(q1);
         reqManager.doGetFriends();
 
-                  System.out.println("LOGGGGGGGGG   get_friends 6");
-
 
         List<AQuestionnaire> friends = questionnaireController.get_quest_in_cache();
 
-          System.out.println("LOGGGGGGGGG   get_friends 1");
 
-
-        Assertions.assertEquals("LenaFriend", friends.getFirst().getUser().getName());
+        Assertions.assertEquals("LenaFriendd", friends.getFirst().getUser().getName());
     }
 
     @Test
