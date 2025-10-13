@@ -1,4 +1,4 @@
-name: Unit Tests DB & BL
+name: Unit Tests in Docker
 
 on:
   pull_request:
@@ -9,30 +9,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        distribution: temurin
-        java-version: '17'
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-    - name: Verify Java version
-      run: java -version
+    - name: Build Docker test image
+      run: docker build -t db-bl-tests -f Dockerfile.tests .
 
-    - name: Grant execute permission for Gradle wrapper
-      run: chmod +x ./PPO_f/gradlew
-
-    - name: Build & run tests
-      working-directory: ./PPO_f
-      run: ./gradlew :DB:test :BL:test --stacktrace --info
+    - name: Run tests in Docker container
+      run: |
+        mkdir -p test-results
+        docker run --rm -v $(pwd)/test-results:/app/PPO_f/test-results db-bl-tests
 
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: unit-test-reports
-        path: |
-          ./PPO_f/DB/build/test-results/
-          ./PPO_f/BL/build/test-results/
+        path: test-results/
