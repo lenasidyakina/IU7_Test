@@ -273,26 +273,8 @@ public class DatabaseTest {
 //        Assertions.assertEquals(q1.getBlackList().getFirst().getId(), friend.getId());
 //    }
 
-    @Test
-    public void del_black_list() throws Exception {
-        DBAPI api = buildDBAPI();
-        var components = buildQuestionnaireComponents(api);
-        QuestionnaireManager questionnaireManager = components.manager();
-
-        UserRepository xuserRepository = new UserRepository(userRepository);
-        UserManager userManager = buildUserManager(xuserRepository);
-
-        AUser user = userManager.authorize("LenaBlack", "12345");
-        AQuestionnaire q = questionnaireManager.get_user_questionnaies(user.getId()).getFirst();
-
-        components.controller().set_active_questionnaire(q);
-        questionnaireManager.del_black(q.getBlackList().getFirst());
-
-        Assertions.assertEquals(0, q.getBlackList().size());
-    }
-
 //    @Test
-//    public void del_fav_list() throws Exception {
+//    public void del_black_list() throws Exception {
 //        DBAPI api = buildDBAPI();
 //        var components = buildQuestionnaireComponents(api);
 //        QuestionnaireManager questionnaireManager = components.manager();
@@ -300,14 +282,32 @@ public class DatabaseTest {
 //        UserRepository xuserRepository = new UserRepository(userRepository);
 //        UserManager userManager = buildUserManager(xuserRepository);
 //
-//        AUser user = userManager.authorize("LenaFav", "12345");
+//        AUser user = userManager.authorize("LenaBlack", "12345");
 //        AQuestionnaire q = questionnaireManager.get_user_questionnaies(user.getId()).getFirst();
 //
 //        components.controller().set_active_questionnaire(q);
-//        questionnaireManager.del_fav(q.getFavList().getFirst());
+//        questionnaireManager.del_black(q.getBlackList().getFirst());
 //
-//        Assertions.assertEquals(0, q.getFavList().size());
+//        Assertions.assertEquals(0, q.getBlackList().size());
 //    }
+
+    @Test
+    public void del_fav_list() throws Exception {
+        DBAPI api = buildDBAPI();
+        var components = buildQuestionnaireComponents(api);
+        QuestionnaireManager questionnaireManager = components.manager();
+
+        UserRepository xuserRepository = new UserRepository(userRepository);
+        UserManager userManager = buildUserManager(xuserRepository);
+
+        AUser user = userManager.authorize("LenaFav", "12345");
+        AQuestionnaire q = questionnaireManager.get_user_questionnaies(user.getId()).getFirst();
+
+        components.controller().set_active_questionnaire(q);
+        questionnaireManager.del_fav(q.getFavList().getFirst());
+
+        Assertions.assertEquals(0, q.getFavList().size());
+    }
 
     @Test // -
     @DatabaseSetup("classpath:db_test_data.xml")
