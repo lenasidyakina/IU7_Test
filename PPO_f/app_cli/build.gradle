@@ -136,7 +136,7 @@ dependencies {
 
     implementation project(':BL')
     implementation project(':DB')
-    implementation project(':ML')
+    implementation project(':ML_stab')
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     // тест БД

@@ -558,7 +558,7 @@ public class Main {
         QuestionnaireRepository dataRepository = new QuestionnaireRepository(api);
         //AppLogger logger = new AppLoggerImpl("AppLogger");
 
-        MainManager m = new MainManager(new ML_port(olamaHost, logger),userRepository, dataRepository,
+        MainManager m = new MainManager(new ML_stab_port(olamaHost, logger),userRepository, dataRepository,
                 reqCacheRepository, logger);
 
 

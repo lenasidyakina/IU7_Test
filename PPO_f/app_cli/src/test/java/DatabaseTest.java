@@ -99,7 +99,7 @@ public class DatabaseTest {
         var xquestRepository = new QuestionnaireRepository(api);
         var xreqCacheRepository = new ReqCacheRepository(reqCacheRepository);
         var questionnaireController =
-                new QuestionnaireController(new ML_port("http://localhost:11434/api/generate"),
+                new QuestionnaireController(new ML_stab_port("http://localhost:11434/api/generate"),
                         xquestRepository, xreqCacheRepository);
         var questionnaireManager = new QuestionnaireManager(questionnaireController);
         return new QuestionnaireComponents(questionnaireManager, questionnaireController);
