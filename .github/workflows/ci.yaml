@@ -44,15 +44,13 @@ jobs:
 
       - name: Run integration tests in Docker
         run: |
-          # Создаём пустую папку для отчётов на хосте
           mkdir -p ${{ github.workspace }}/PPO_f/test-results/integration
-
-          # Генерируем тестовые отчёты внутри контейнера
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v ${{ github.workspace }}/PPO_f/test-results/integration:/app/test-results \
             bd-integration-tests \
             bash -c "mkdir -p /app/test-results && ./gradlew :app_cli:test --stacktrace --info -Dorg.gradle.report.outputDir=/app/test-results"
+
 
       - name: Upload integration test report
         if: always()
