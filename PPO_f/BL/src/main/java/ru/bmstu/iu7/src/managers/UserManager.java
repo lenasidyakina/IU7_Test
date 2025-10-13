@@ -23,13 +23,16 @@ public class UserManager {
             if (logger != null) logger.info("Attempting to register user: {}", username);
             if (m_user_repository.findUser(username) == null) {
                 AUser user = m_user_repository.createUser(username, password, age, gender);
+                System.out.println("User registered successfully:");
                 if (logger != null) logger.info("User registered successfully: {}", username);
                 return user;
             } else {
+                System.out.println("user already exists");
                 if (logger != null) logger.warn("Registration failed, user already exists: {}", username);
                 return null;
             }
         } catch (Exception e) {
+            System.out.println("error");
             if (logger != null) logger.error("Failed to register user {}: {}", username, e.getMessage(), e);
             return null;
         }
