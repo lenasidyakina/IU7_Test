@@ -1,6 +1,8 @@
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
+import jakarta.activation.DataSource;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
@@ -58,6 +61,20 @@ public class DatabaseTest {
     @Autowired private SpringTagRepository tagRepository;
     @Autowired private SpringInformationRepository informationRepository;
 
+
+    @Autowired private JdbcTemplate jdbcTemplate; // ✅ Добавлено для выполнения SQL
+
+    // ✅ ВСТАВЛЯЕМ ВОТ ЭТО СЮДА
+    @BeforeEach
+    void setupTable() {
+        jdbcTemplate.execute("""
+            DROP TABLE IF EXISTS extended_answer_tags CASCADE;
+            CREATE TABLE extended_answer_tags (
+                extended_answer_id BIGINT,
+                tags_id BIGINT
+            );
+        """);
+    }
     // -------------------- ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ --------------------
 
     private DBAPI buildDBAPI() {
@@ -336,7 +353,8 @@ public class DatabaseTest {
 
         questionnaireManager.append_question(true,
                 "How do you like to spend your time?", new ArrayList<>(Arrays.asList(walking_tag, sleeping_tag)));
-        
+
+
         AQuestionnaire q = createQuestionnaire(questionnaireManager, user,
                 "swimming", "I like walking my dog.",
                 "swimming", "I like walking my dog.");
