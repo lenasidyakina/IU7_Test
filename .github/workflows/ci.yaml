@@ -53,10 +53,12 @@ jobs:
       - name: Run E2E tests inside Docker
         run: |
           docker run --rm \
-            -e POSTGRES_HOST=host.docker.internal \
+            -e POSTGRES_HOST=postgres \
             -e POSTGRES_PORT=5432 \
             -e POSTGRES_USER=testuser \
             -e POSTGRES_PASSWORD=testpassword \
             -e POSTGRES_DB=testdb \
+            --network host \
             -v ${{ github.workspace }}/build/libs:/app/build/libs \
             e2e-test-image
+
