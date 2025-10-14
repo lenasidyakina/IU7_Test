@@ -26,7 +26,7 @@ public class ML_stab_port implements IML_port {
     @Override
     public List<ATag> get_tags_names(String question, String answer, List<ATag> tags) throws IOException, InterruptedException {
         if (logger != null) logger.info("Generating tags for question '{}' and answer '{}'", question, answer);
-        List<ATag> answer_tags = List.of(tags.getFirst());
+        List<ATag> answer_tags = List.of(tags.get(0));
         return answer_tags;
     }
 }
