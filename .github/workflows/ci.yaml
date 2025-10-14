@@ -46,37 +46,33 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
+      - name: Build Docker image for integration tests
+        run: docker build -t integration-tests-image -f ./Dockerfile.integration .
 
-      - name: Grant execution permission to Gradle wrapper
+      - name: Run integration tests inside Docker
         run: |
-          cd PPO_f
-          chmod +x gradlew
-      - name: Run integration tests
-        run: |
-          cd PPO_f
-          mkdir -p test-results/integration
-          ./gradlew :app_cli:test \
-            --stacktrace --info \
-            -Dorg.gradle.report.outputDir=./test-results/integration \
-            -Dspring.profiles.active=test \
-            -Dspring.datasource.url=jdbc:postgresql://postgres:5432/testdb \
-            -Dspring.datasource.username=testuser \
-            -Dspring.datasource.password=testpassword
+          mkdir -p ${{ github.workspace }}/PPO_f/test-results/integration
+          docker run --rm \
+            --network host \
+            -e SPRING_PROFILES_ACTIVE=test \
+            -e SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/testdb \
+            -e SPRING_DATASOURCE_USERNAME=testuser \
+            -e SPRING_DATASOURCE_PASSWORD=testpassword \
+            -v ${{ github.workspace }}/PPO_f/test-results/integration:/app/PPO_f/test-results/integration \
+            integration-tests-image
+
       - name: Upload integration test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: integration-test-reports
           path: PPO_f/test-results/integration
+
           
   e2e-tests:
     runs-on: ubuntu-latest
