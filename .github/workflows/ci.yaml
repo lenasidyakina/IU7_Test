@@ -29,7 +29,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-reports
-          path: PPO_f/test-results/unit
+          path: ${{ github.workspace }}/PPO_f/test-results/unit
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -72,14 +72,15 @@ jobs:
             -Dspring.profiles.active=test \
             -Dspring.datasource.url=jdbc:postgresql://postgres:5432/testdb \
             -Dspring.datasource.username=testuser \
-            -Dspring.datasource.password=testpassword || true
+            -Dspring.datasource.password=testpassword \
+            -Dorg.gradle.test.report.html.enabled=true || true
 
       - name: Upload integration test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: integration-test-reports
-          path: PPO_f/test-results/integration
+          path: ${{ github.workspace }}/PPO_f/test-results/integration
 
   e2e-tests:
     runs-on: ubuntu-latest
@@ -135,7 +136,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: e2e-test-reports
-          path: PPO_f/test-results/e2e
+          path: ${{ github.workspace }}/PPO_f/test-results/e2e
 
   mark-skipped:
     runs-on: ubuntu-latest
@@ -144,5 +145,5 @@ jobs:
     steps:
       - name: Create skipped reports for non-run stages
         run: |
-          echo "Creating skipped markers for stages that были пропущены..."
+          echo "Creating skipped markers для пропущенных этапов..."
           # Можно генерировать пустые JUnit XML с skipped тестами для integration/e2e, если они не выполнялись
