@@ -11,28 +11,29 @@ class TestE2E(unittest.TestCase):
 
     def setUp(self):
         # Параметры для CI (аналог integration-tests)
-        self.db_host = os.getenv("POSTGRES_HOST", "postgres")
-        self.db_port = os.getenv("POSTGRES_PORT", "5432")
-        self.db_user = os.getenv("POSTGRES_USER", "testuser")
-        self.db_pass = os.getenv("POSTGRES_PASSWORD", "testpassword")
-        self.db_name = os.getenv("POSTGRES_DB", "testdb")
+        host = os.getenv("POSTGRES_HOST", "localhost")
+        port = os.getenv("POSTGRES_PORT", "5432")
+        user = os.getenv("POSTGRES_USER", "testuser")
+        password = os.getenv("POSTGRES_PASSWORD", "testpassword")
+        database = os.getenv("POSTGRES_DB", "testdb")
 
-        # 1. Ждём, пока PostgreSQL поднимется
         for _ in range(20):
             try:
-                self.conn = psycopg2.connect(
-                    host=self.db_host,
-                    port=self.db_port,
-                    user=self.db_user,
-                    password=self.db_pass,
-                    dbname=self.db_name
+                conn = psycopg2.connect(
+                    host=host,
+                    port=port,
+                    user=user,
+                    password=password,
+                    database=database
                 )
+                print("✅ PostgreSQL доступен")
                 break
-            except psycopg2.OperationalError:
+            except Exception as e:
                 print("⏳ Ждём, пока PostgreSQL станет доступен...")
                 time.sleep(3)
         else:
             raise Exception("❌ Не удалось подключиться к PostgreSQL")
+
 
         cur = self.conn.cursor()
 
