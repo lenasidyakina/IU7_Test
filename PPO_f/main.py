@@ -113,13 +113,103 @@ class TestE2E(unittest.TestCase):
         self.child.sendline(text)
 
     def test_full_flow(self):
+        # 1. Регистрация user1
         self._wait_for("1 - зарегистрироваться")
         self._write("1")
         self._wait_for("логин:")
         self._write("user1")
         self._wait_for("пароль:")
         self._write("pass1")
-        print("✅ Регистрация прошла успешно")
+
+        # 2. Вход user1
+        self._wait_for("2 - войти")
+        self._write("2")
+        self._wait_for("логин:")
+        self._write("user1")
+        self._wait_for("пароль:")
+        self._write("pass1")
+
+        # 3. Создание анкеты user1
+        self._wait_for("1 - создать анкету")
+        self._write("1")
+        self._wait_for("Часть 1. Ответь на вопросы от своего лица.")
+        self._write("1")
+        self._wait_for("Введите вес этого вопроса")
+        self._write("5")
+        self._wait_for("How do you like to spend your time?")
+        self._write("I love walking.")
+        self._wait_for("Введите вес этого вопроса")
+        self._write("5")
+        self._wait_for("Часть 2. Ответь на вопросы от лица потенциального друга.")
+        self._write("2")
+        self._wait_for("Введите вес этого вопроса")
+        self._write("5")
+        self._wait_for("How do you like to spend your time?")
+        self._write("I love walking.")
+        self._wait_for("Введите вес этого вопроса")
+        self._write("5")
+        self._wait_for("Анкета успешно создана")
+
+        # 4. Выход user1
+        self._wait_for("1 - создать анкету")
+        self._write("2")  # выйти
+
+        # 5. Регистрация user2
+        self._wait_for("1 - зарегистрироваться")
+        self._write("1")
+        self._wait_for("логин:")
+        self._write("user2")
+        self._wait_for("пароль:")
+        self._write("pass2")
+
+        # 6. Вход user2
+        self._wait_for("2 - войти")
+        self._write("2")
+        self._wait_for("логин:")
+        self._write("user2")
+        self._wait_for("пароль:")
+        self._write("pass2")
+
+        # 7. Создание анкеты user2
+        self._wait_for("1 - создать анкету")
+        self._write("1")
+        self._wait_for("Часть 1. Ответь на вопросы от своего лица.")
+        self._write("1")
+        self._wait_for("Введите вес этого вопроса")
+        self._write("5")
+        self._wait_for("How do you like to spend your time?")
+        self._write("I love swimming.")
+        self._wait_for("Введите вес этого вопроса")
+        self._write("5")
+        self._wait_for("Часть 2. Ответь на вопросы от лица потенциального друга.")
+        self._write("2")
+        self._wait_for("Введите вес этого вопроса")
+        self._write("5")
+        self._wait_for("How do you like to spend your time?")
+        self._write("I love swimming.")
+        self._wait_for("Введите вес этого вопроса")
+        self._write("5")
+        self._wait_for("Анкета успешно создана")
+
+        # 8. Получение списка потенциальных друзей (user2)
+        self._wait_for("1 - создать анкету")
+        self._write("3")  # пункт "получить список потенциальных друзей"
+        self._wait_for("Ваши потенциальные друзья:")
+
+        # 9. Добавляем найденную анкету в избранное
+        # программа напечатает user1 и id
+        # теперь меню выбора
+        self._wait_for("1 - добавить в чёрный список")
+        self._write("2")  # добавить в избранное
+        self._wait_for("Выберете номер анкеты:")
+        self._write("1")  # допустим, первая анкета
+
+        # 10. Проверяем, что избранное отобразилось корректно
+        self._wait_for("1 - создать анкету")
+        self._write("4")  # вывести избранное
+        output = self._wait_for("user1")  # ждём, что появится имя user1
+
+        print("✅ E2E тест завершён успешно — анкета добавлена в избранное")
 
 
 if __name__ == "__main__":
