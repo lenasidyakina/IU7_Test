@@ -1,11 +1,8 @@
 import unittest
-import subprocess
 import os
-import time
 import psycopg2
-import sys
-import threading
-import queue
+import time
+import pexpect
 
 class TestE2E(unittest.TestCase):
     JAR_PATH = "./PPO_f/app_cli/build/libs/app_cli-1.0-SNAPSHOT.jar"
@@ -36,7 +33,7 @@ class TestE2E(unittest.TestCase):
         else:
             raise Exception("❌ Не удалось подключиться к PostgreSQL")
 
-        # Создаём таблицы
+        # Создаём таблицы и начальные данные
         cur = self.conn.cursor()
         cur.execute("""
         CREATE TABLE IF NOT EXISTS tag (
@@ -91,54 +88,29 @@ class TestE2E(unittest.TestCase):
         self.env["SPRING_DATASOURCE_USERNAME"] = self.db_user
         self.env["SPRING_DATASOURCE_PASSWORD"] = self.db_pass
 
-        # Запуск JAR
-        self.process = subprocess.Popen(
-            ["java", "-Dfile.encoding=UTF-8", "-jar", self.JAR_PATH],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            bufsize=0,
-            text=True,
-            env=self.env
+        # Запуск JAR через pexpect (создаёт псевдоконсоль!)
+        self.child = pexpect.spawn(
+            f'java -Dfile.encoding=UTF-8 -jar {self.JAR_PATH}',
+            env=self.env,
+            encoding='utf-8',
+            timeout=30
         )
-
-        # Поток для чтения stdout без блокировки
-        self.q = queue.Queue()
-        def reader_thread(pipe, queue_):
-            for line in iter(pipe.readline, ''):
-                queue_.put(line)
-        t = threading.Thread(target=reader_thread, args=(self.process.stdout, self.q))
-        t.daemon = True
-        t.start()
+        self.child.logfile = None  # Можно поставить sys.stdout для дебага
 
     def tearDown(self):
-        if self.process and self.process.poll() is None:
-            self.process.terminate()
-            try:
-                self.process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                self.process.kill()
+        if hasattr(self, "child") and self.child.isalive():
+            self.child.terminate(force=True)
         if hasattr(self, "conn"):
             self.conn.close()
 
-    def _write(self, text):
-        self.process.stdin.write(text + "\n")
-        self.process.stdin.flush()
+    def _wait_for(self, substr):
+        try:
+            self.child.expect(substr)
+        except pexpect.EOF:
+            raise AssertionError(f"Не дождались: '{substr}'\nВывод:\n{self.child.before}")
 
-    def _wait_for(self, substr, timeout=30):
-        start = time.time()
-        output = ""
-        while time.time() - start < timeout:
-            try:
-                line = self.q.get_nowait()
-            except queue.Empty:
-                time.sleep(0.1)
-                continue
-            print(line.strip())
-            output += line
-            if substr in line:
-                return output
-        raise AssertionError(f"Не дождались: '{substr}'\nВывод:\n{output}")
+    def _write(self, text):
+        self.child.sendline(text)
 
     def test_full_flow(self):
         self._wait_for("1 - зарегистрироваться")
