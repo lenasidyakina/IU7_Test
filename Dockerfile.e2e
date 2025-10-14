@@ -7,7 +7,7 @@ WORKDIR /app
 # Устанавливаем OpenJDK 21, curl, psycopg2 и необходимые инструменты
 RUN apt-get update && \
     apt-get install -y openjdk-21-jdk curl gcc libpq-dev && \
-    pip install --no-cache-dir psycopg2-binary && \
+    pip install --no-cache-dir psycopg2-binary pexpect && \
     rm -rf /var/lib/apt/lists/*
 
 # Копируем весь код проекта
