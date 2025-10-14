@@ -1,11 +1,12 @@
 name: E2E Tests
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
-    branches: [ main, lab2 ]
 
 jobs:
-  e2e-tests:
+  test:
     runs-on: ubuntu-latest
 
     services:
@@ -15,50 +16,45 @@ jobs:
           POSTGRES_USER: testuser
           POSTGRES_PASSWORD: testpassword
           POSTGRES_DB: testdb
-        ports:
-          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U testuser -d testdb"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+        ports:
+          - 5432:5432
+
+    container:
+      image: python:3.11-slim
+      env:
+        POSTGRES_HOST: postgres
+        POSTGRES_PORT: 5432
+        POSTGRES_USER: testuser
+        POSTGRES_PASSWORD: testpassword
+        POSTGRES_DB: testdb
+      options: >-
+        --health-cmd="pg_isready -U testuser -h postgres -d testdb"
+        --health-interval=10s
+        --health-timeout=5s
+        --health-retries=5
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Build JAR for E2E
+      - name: Install dependencies
         run: |
-          cd PPO_f
-          chmod +x gradlew
-          ./gradlew :app_cli:build -x test
-          ls -l app_cli/build/libs
+          apt-get update && apt-get install -y openjdk-17-jdk curl
+          pip install psycopg2 requests pytest
 
-      # 🔹 Копируем JAR наверх, чтобы Dockerfile.e2e в корне видел его
-      - name: Copy JAR to root for Docker build
+      - name: Run E2E tests
         run: |
-          mkdir -p ./build/libs
-          cp PPO_f/app_cli/build/libs/app_cli-1.0-SNAPSHOT.jar ./build/libs/
-
-      - name: Build Docker image for E2E test
-        run: |
-          docker build -t e2e-test-image -f Dockerfile.e2e .
-
-      - name: Run E2E tests inside Docker
-        run: |
-          docker run --rm \
-            -e POSTGRES_HOST=postgres \
-            -e POSTGRES_PORT=5432 \
-            -e POSTGRES_USER=testuser \
-            -e POSTGRES_PASSWORD=testpassword \
-            -e POSTGRES_DB=testdb \
-            -v ${{ github.workspace }}/build/libs:/app/build/libs \
-            e2e-test-image
-
-
+          echo "⏳ Ждём, пока PostgreSQL станет доступен..."
+          for i in {1..20}; do
+            if pg_isready -h postgres -U testuser -d testdb > /dev/null; then
+              echo "✅ PostgreSQL доступен!"
+              break
+            fi
+            sleep 3
+          done
+          pytest -v PPO_f/main.py
