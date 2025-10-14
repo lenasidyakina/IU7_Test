@@ -3,20 +3,22 @@ import subprocess
 import os
 import time
 import psycopg2
-
+import sys
+import threading
+import queue
 
 class TestE2E(unittest.TestCase):
     JAR_PATH = "./PPO_f/app_cli/build/libs/app_cli-1.0-SNAPSHOT.jar"
 
     def setUp(self):
-        # Параметры для CI
+        # Параметры PostgreSQL
         self.db_host = os.getenv("POSTGRES_HOST", "postgres")
         self.db_port = os.getenv("POSTGRES_PORT", "5432")
         self.db_user = os.getenv("POSTGRES_USER", "testuser")
         self.db_pass = os.getenv("POSTGRES_PASSWORD", "testpassword")
         self.db_name = os.getenv("POSTGRES_DB", "testdb")
 
-        # Ждём доступности PostgreSQL
+        # Ждём PostgreSQL
         for _ in range(20):
             try:
                 self.conn = psycopg2.connect(
@@ -29,17 +31,16 @@ class TestE2E(unittest.TestCase):
                 print("✅ PostgreSQL доступен")
                 break
             except Exception:
-                print("⏳ Ждём, пока PostgreSQL станет доступен...")
+                print("⏳ Ждём PostgreSQL...")
                 time.sleep(3)
         else:
             raise Exception("❌ Не удалось подключиться к PostgreSQL")
 
-        cur = self.conn.cursor()
-
         # Создаём таблицы
+        cur = self.conn.cursor()
         cur.execute("""
         CREATE TABLE IF NOT EXISTS tag (
-            id   BIGSERIAL PRIMARY KEY,
+            id BIGSERIAL PRIMARY KEY,
             name TEXT UNIQUE
         );
         CREATE TABLE IF NOT EXISTS question (
@@ -49,7 +50,7 @@ class TestE2E(unittest.TestCase):
         );
         CREATE TABLE IF NOT EXISTS question_tags (
             question_id BIGINT NOT NULL REFERENCES question(id) ON DELETE CASCADE,
-            tags_id     BIGINT NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
+            tags_id BIGINT NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
             UNIQUE (question_id, tags_id)
         );
         DROP TABLE IF EXISTS extended_answer_tags CASCADE;
@@ -58,11 +59,9 @@ class TestE2E(unittest.TestCase):
             tags_id BIGINT
         );
         """)
-
         tags = ['walking', 'watching TV', 'swimming', 'sleeping']
         for t in tags:
             cur.execute("INSERT INTO tag (name) VALUES (%s) ON CONFLICT (name) DO NOTHING;", (t,))
-
         cur.execute("""
         INSERT INTO question (question, is_extended)
         VALUES
@@ -70,7 +69,6 @@ class TestE2E(unittest.TestCase):
             ('How do you like to spend your time?', TRUE)
         ON CONFLICT DO NOTHING;
         """)
-
         cur.execute("""
         INSERT INTO question_tags (question_id, tags_id)
         SELECT q.id, t.id
@@ -83,7 +81,6 @@ class TestE2E(unittest.TestCase):
         )
         ON CONFLICT DO NOTHING;
         """)
-
         self.conn.commit()
         cur.close()
 
@@ -96,30 +93,33 @@ class TestE2E(unittest.TestCase):
 
         # Запуск JAR
         self.process = subprocess.Popen(
-            ["java", "-Dserver.port=9196", "-Dfile.encoding=UTF-8", "-jar", self.JAR_PATH],
+            ["java", "-Dfile.encoding=UTF-8", "-jar", self.JAR_PATH],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            env=self.env,
-            bufsize=1,
-            text=True  # строковый режим
+            bufsize=0,
+            text=True,
+            env=self.env
         )
 
+        # Поток для чтения stdout без блокировки
+        self.q = queue.Queue()
+        def reader_thread(pipe, queue_):
+            for line in iter(pipe.readline, ''):
+                queue_.put(line)
+        t = threading.Thread(target=reader_thread, args=(self.process.stdout, self.q))
+        t.daemon = True
+        t.start()
+
     def tearDown(self):
-        try:
-            if self.process and self.process.poll() is None:
-                self.process.terminate()
-                try:
-                    self.process.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    self.process.kill()
-            if hasattr(self.process, "stdout") and not self.process.stdout.closed:
-                self.process.stdout.close()
-            if hasattr(self.process, "stdin") and not self.process.stdin.closed:
-                self.process.stdin.close()
-        finally:
-            if hasattr(self, "conn"):
-                self.conn.close()
+        if self.process and self.process.poll() is None:
+            self.process.terminate()
+            try:
+                self.process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                self.process.kill()
+        if hasattr(self, "conn"):
+            self.conn.close()
 
     def _write(self, text):
         self.process.stdin.write(text + "\n")
@@ -129,8 +129,9 @@ class TestE2E(unittest.TestCase):
         start = time.time()
         output = ""
         while time.time() - start < timeout:
-            line = self.process.stdout.readline()
-            if not line:
+            try:
+                line = self.q.get_nowait()
+            except queue.Empty:
                 time.sleep(0.1)
                 continue
             print(line.strip())
