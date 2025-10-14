@@ -11,7 +11,7 @@ class TestE2E(unittest.TestCase):
 
     def setUp(self):
         # Параметры для CI (аналог integration-tests)
-        self.db_host = os.getenv("POSTGRES_HOST", "localhost")
+        self.db_host = os.getenv("POSTGRES_HOST", "postgres")  # <-- важно!
         self.db_port = os.getenv("POSTGRES_PORT", "5432")
         self.db_user = os.getenv("POSTGRES_USER", "testuser")
         self.db_pass = os.getenv("POSTGRES_PASSWORD", "testpassword")
