@@ -15,9 +15,5 @@ RUN chmod +x ./gradlew
 # Сборка без тестов
 RUN ./gradlew build -x test
 
-
-# Создаём каталог для отчётов
-RUN mkdir -p PPO_f/test-results/integration
-
 # По умолчанию запускаем тесты в app_cli
 CMD ["./gradlew", ":app_cli:test"]
