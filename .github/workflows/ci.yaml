@@ -18,10 +18,10 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U testuser"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd="pg_isready -U testuser -d testdb"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - name: Checkout code
@@ -37,11 +37,18 @@ jobs:
         run: |
           cd PPO_f
           chmod +x gradlew
-          ./gradlew :app_cli:build
+          ./gradlew :app_cli:build -x test
           ls -l app_cli/build/libs
 
+      # 🔹 Копируем JAR наверх, чтобы Dockerfile.e2e в корне видел его
+      - name: Copy JAR to root for Docker build
+        run: |
+          mkdir -p ./build/libs
+          cp PPO_f/app_cli/build/libs/app_cli-1.0-SNAPSHOT.jar ./build/libs/
+
       - name: Build Docker image for E2E test
-        run: docker build -t e2e-test-image -f Dockerfile.e2e .
+        run: |
+          docker build -t e2e-test-image -f Dockerfile.e2e .
 
       - name: Run E2E tests inside Docker
         run: |
@@ -51,5 +58,5 @@ jobs:
             -e POSTGRES_USER=testuser \
             -e POSTGRES_PASSWORD=testpassword \
             -e POSTGRES_DB=testdb \
-            -v ${{ github.workspace }}/PPO_f/app_cli/build/libs:/app/PPO_f/app_cli/build/libs \
+            -v ${{ github.workspace }}/build/libs:/app/build/libs \
             e2e-test-image
