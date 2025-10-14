@@ -1,31 +1,18 @@
-# Используем образ с JDK 17 (Temurin) на Alpine
-FROM eclipse-temurin:17-jdk-alpine
+# Используем Python 3.11 slim
+FROM python:3.11-slim
 
-# Устанавливаем Python 3 и pip
-RUN apk add --no-cache python3 py3-pip bash curl
-
+# Рабочая директория
 WORKDIR /app
 
-# Копируем весь проект
+# Устанавливаем необходимые пакеты: OpenJDK 21 (для JAR), curl, psycopg2 для Python
+RUN apt-get update && \
+    apt-get install -y openjdk-21-jdk curl gcc libpq-dev && \
+    pip install --no-cache-dir psycopg2-binary && \
+    rm -rf /var/lib/apt/lists/*
+
+# Копируем код проекта (тесты и jar)
 COPY PPO_f /app/PPO_f
 
-# Устанавливаем Python-зависимости для E2E
-COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+# По умолчанию запускаем Python тесты
+CMD ["python3", "-m", "unittest", "discover", "-s", "PPO_f", "-p", "main.py"]
 
-# Делаем gradlew исполняемым
-RUN chmod +x /app/PPO_f/gradlew
-
-# Собираем jar без запуска тестов
-RUN cd /app/PPO_f && ./gradlew :app_cli:build -x test
-
-# Переменные окружения для подключения к БД
-# Эти переменные будут переопределены при запуске контейнера
-ENV POSTGRES_HOST=localhost
-ENV POSTGRES_PORT=5432
-ENV POSTGRES_USER=testuser
-ENV POSTGRES_PASSWORD=testpassword
-ENV POSTGRES_DB=testdb
-
-# По умолчанию запускаем jar (можно изменить на pytest для python тестов)
-CMD ["java", "-jar", "/app/PPO_f/app_cli/build/libs/app_cli-1.0-SNAPSHOT.jar"]
