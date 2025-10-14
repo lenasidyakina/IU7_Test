@@ -1,12 +1,11 @@
 name: E2E Tests
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
+    branches: [main, lab2]
 
 jobs:
-  test:
+  e2e-tests:
     runs-on: ubuntu-latest
 
     services:
@@ -16,45 +15,46 @@ jobs:
           POSTGRES_USER: testuser
           POSTGRES_PASSWORD: testpassword
           POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U testuser -d testdb"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-        ports:
-          - 5432:5432
-
-    container:
-      image: python:3.11-slim
-      env:
-        POSTGRES_HOST: postgres
-        POSTGRES_PORT: 5432
-        POSTGRES_USER: testuser
-        POSTGRES_PASSWORD: testpassword
-        POSTGRES_DB: testdb
-      options: >-
-        --health-cmd="pg_isready -U testuser -h postgres -d testdb"
-        --health-interval=10s
-        --health-timeout=5s
-        --health-retries=5
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          apt-get update && apt-get install -y openjdk-17-jdk curl
-          pip install psycopg2 requests pytest
+      - name: Set up JDK 21 for build
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-      - name: Run E2E tests
+      - name: Build JAR for E2E
         run: |
-          echo "⏳ Ждём, пока PostgreSQL станет доступен..."
-          for i in {1..20}; do
-            if pg_isready -h postgres -U testuser -d testdb > /dev/null; then
-              echo "✅ PostgreSQL доступен!"
-              break
-            fi
-            sleep 3
-          done
-          pytest -v PPO_f/main.py
+          cd PPO_f
+          chmod +x gradlew
+          ./gradlew :app_cli:build -x test
+          ls -l app_cli/build/libs
+
+      - name: Copy JAR for Docker build
+        run: |
+          mkdir -p build/libs
+          cp PPO_f/app_cli/build/libs/app_cli-1.0-SNAPSHOT.jar build/libs/
+
+      - name: Build Docker image for E2E tests
+        run: docker build -t e2e-test-image -f Dockerfile.e2e .
+
+      - name: Run E2E tests inside Docker
+        run: |
+          docker run --rm \
+            --network host \
+            -e POSTGRES_HOST=localhost \
+            -e POSTGRES_PORT=5432 \
+            -e POSTGRES_USER=testuser \
+            -e POSTGRES_PASSWORD=testpassword \
+            -e POSTGRES_DB=testdb \
+            e2e-test-image
