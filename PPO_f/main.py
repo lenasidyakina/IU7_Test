@@ -11,33 +11,33 @@ class TestE2E(unittest.TestCase):
 
     def setUp(self):
         # Параметры для CI (аналог integration-tests)
-        host = os.getenv("POSTGRES_HOST", "localhost")
-        port = os.getenv("POSTGRES_PORT", "5432")
-        user = os.getenv("POSTGRES_USER", "testuser")
-        password = os.getenv("POSTGRES_PASSWORD", "testpassword")
-        database = os.getenv("POSTGRES_DB", "testdb")
-
+        self.db_host = os.getenv("POSTGRES_HOST", "localhost")
+        self.db_port = os.getenv("POSTGRES_PORT", "5432")
+        self.db_user = os.getenv("POSTGRES_USER", "testuser")
+        self.db_pass = os.getenv("POSTGRES_PASSWORD", "testpassword")
+        self.db_name = os.getenv("POSTGRES_DB", "testdb")
+    
+        # Ждём доступности PostgreSQL
         for _ in range(20):
             try:
-                conn = psycopg2.connect(
-                    host=host,
-                    port=port,
-                    user=user,
-                    password=password,
-                    database=database
+                self.conn = psycopg2.connect(
+                    host=self.db_host,
+                    port=self.db_port,
+                    user=self.db_user,
+                    password=self.db_pass,
+                    database=self.db_name
                 )
                 print("✅ PostgreSQL доступен")
                 break
-            except Exception as e:
+            except Exception:
                 print("⏳ Ждём, пока PostgreSQL станет доступен...")
                 time.sleep(3)
         else:
             raise Exception("❌ Не удалось подключиться к PostgreSQL")
-
-
+    
         cur = self.conn.cursor()
-
-        # 2. Создаём таблицы и тестовые данные
+    
+        # Создаём таблицы
         cur.execute("""
         CREATE TABLE IF NOT EXISTS tag (
             id   BIGSERIAL PRIMARY KEY,
@@ -59,11 +59,11 @@ class TestE2E(unittest.TestCase):
             tags_id BIGINT
         );
         """)
-
+    
         tags = ['walking', 'watching TV', 'swimming', 'sleeping']
         for t in tags:
             cur.execute("INSERT INTO tag (name) VALUES (%s) ON CONFLICT (name) DO NOTHING;", (t,))
-
+    
         cur.execute("""
         INSERT INTO question (question, is_extended)
         VALUES
@@ -71,7 +71,7 @@ class TestE2E(unittest.TestCase):
             ('How do you like to spend your time?', TRUE)
         ON CONFLICT DO NOTHING;
         """)
-
+    
         cur.execute("""
         INSERT INTO question_tags (question_id, tags_id)
         SELECT q.id, t.id
@@ -84,18 +84,18 @@ class TestE2E(unittest.TestCase):
         )
         ON CONFLICT DO NOTHING;
         """)
-
+    
         self.conn.commit()
         cur.close()
-
-        # 3. Настраиваем переменные окружения для JAR
+    
+        # Переменные окружения для JAR
         jdbc_url = f"jdbc:postgresql://{self.db_host}:{self.db_port}/{self.db_name}"
         self.env = os.environ.copy()
         self.env["SPRING_DATASOURCE_URL"] = jdbc_url
         self.env["SPRING_DATASOURCE_USERNAME"] = self.db_user
         self.env["SPRING_DATASOURCE_PASSWORD"] = self.db_pass
-
-        # 4. Запускаем jar
+    
+        # Запуск JAR
         self.process = subprocess.Popen(
             ["java", "-Dserver.port=9196", "-Dfile.encoding=UTF-8", "-jar", self.JAR_PATH],
             stdin=subprocess.PIPE,
@@ -106,6 +106,7 @@ class TestE2E(unittest.TestCase):
         )
         self.process.stdout = io.TextIOWrapper(self.process.stdout, encoding='utf-8', errors='replace')
         self.process.stdin = io.TextIOWrapper(self.process.stdin, encoding='utf-8', write_through=True)
+
 
     def tearDown(self):
         try:
