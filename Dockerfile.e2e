@@ -4,15 +4,17 @@ FROM python:3.11-slim
 # Рабочая директория
 WORKDIR /app
 
-# Устанавливаем необходимые пакеты: OpenJDK 21 (для JAR), curl, psycopg2 для Python
+# Устанавливаем OpenJDK 21, curl, psycopg2 и необходимые инструменты
 RUN apt-get update && \
     apt-get install -y openjdk-21-jdk curl gcc libpq-dev && \
     pip install --no-cache-dir psycopg2-binary && \
     rm -rf /var/lib/apt/lists/*
 
-# Копируем код проекта (тесты и jar)
+# Копируем весь код проекта
 COPY PPO_f /app/PPO_f
+
+# Копируем собранный JAR
+COPY build/libs/app_cli-1.0-SNAPSHOT.jar /app/build/libs/
 
 # По умолчанию запускаем Python тесты
 CMD ["python3", "-m", "unittest", "discover", "-s", "PPO_f", "-p", "main.py"]
-
