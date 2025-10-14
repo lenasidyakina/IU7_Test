@@ -62,9 +62,8 @@ public class DatabaseTest {
     @Autowired private SpringInformationRepository informationRepository;
 
 
-    @Autowired private JdbcTemplate jdbcTemplate; // ✅ Добавлено для выполнения SQL
+    @Autowired private JdbcTemplate jdbcTemplate;
 
-    // ✅ ВСТАВЛЯЕМ ВОТ ЭТО СЮДА
     @BeforeEach
     void setupTable() {
         jdbcTemplate.execute("""
@@ -75,7 +74,6 @@ public class DatabaseTest {
             );
         """);
     }
-    // -------------------- ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ --------------------
 
     private DBAPI buildDBAPI() {
         DBAPI api = new DBAPI();
@@ -135,7 +133,6 @@ public class DatabaseTest {
         return questionnaireManager.create(user, info2, info1);
     }
 
-    // -------------------- ТЕСТЫ --------------------
 
     @Test
     public void register() throws Exception {
@@ -161,7 +158,7 @@ public class DatabaseTest {
         Assertions.assertEquals(expected.getId(), actual.getId());
     }
 
-    @Test // -
+    @Test
     public void get_friends() throws Exception {
         DBAPI api = buildDBAPI();
         var components = buildQuestionnaireComponents(api);
@@ -229,56 +226,6 @@ public class DatabaseTest {
         Assertions.assertEquals(q1.getFavList().getFirst().getId(), friend.getId());
     }
 
-//    @Test
-//    public void add_black_list() throws Exception {
-//        DBAPI api = buildDBAPI();
-//        var components = buildQuestionnaireComponents(api);
-//        QuestionnaireManager questionnaireManager = components.manager();
-//        var questionnaireController = components.controller();
-//        var reqManager = new RecManager(questionnaireController);
-//
-//        UserRepository xuserRepository = new UserRepository(userRepository);
-//        UserManager userManager = buildUserManager(xuserRepository);
-//
-//        AUser user1 = userManager.register("LenaBlack", "12345", 20, true);
-//        AQuestionnaire q1 = createQuestionnaire(questionnaireManager, user1,
-//                "watching TV", "I like walking my dog and sleeping.",
-//                "swimming", "I like walking my dog.");
-//
-//        AUser user2 = userManager.register("LenaBlocked", "12345", 20, true);
-//        createQuestionnaire(questionnaireManager, user2,
-//                "swimming", "I like walking my dog.",
-//                "swimming", "I like walking my dog.");
-//
-//        questionnaireController.set_active_questionnaire(q1);
-//        reqManager.doGetFriends();
-//
-//        AQuestionnaire friend = questionnaireController.get_quest_in_cache().getFirst();
-//        questionnaireManager.add_black(friend);
-//        reqManager.doGetFriends();
-//
-//        Assertions.assertEquals(0, questionnaireController.get_quest_in_cache().size());
-//        Assertions.assertEquals(q1.getBlackList().getFirst().getId(), friend.getId());
-//    }
-
-//    @Test
-//    public void del_black_list() throws Exception {
-//        DBAPI api = buildDBAPI();
-//        var components = buildQuestionnaireComponents(api);
-//        QuestionnaireManager questionnaireManager = components.manager();
-//
-//        UserRepository xuserRepository = new UserRepository(userRepository);
-//        UserManager userManager = buildUserManager(xuserRepository);
-//
-//        AUser user = userManager.authorize("LenaBlack", "12345");
-//        AQuestionnaire q = questionnaireManager.get_user_questionnaies(user.getId()).getFirst();
-//
-//        components.controller().set_active_questionnaire(q);
-//        questionnaireManager.del_black(q.getBlackList().getFirst());
-//
-//        Assertions.assertEquals(0, q.getBlackList().size());
-//    }
-
     @Test
     public void del_fav_list() throws Exception {
         DBAPI api = buildDBAPI();
@@ -297,7 +244,7 @@ public class DatabaseTest {
         Assertions.assertEquals(0, q.getFavList().size());
     }
 
-    @Test // -
+    @Test 
     @DatabaseSetup("classpath:db_test_data.xml")
     public void create() throws Exception {
 
