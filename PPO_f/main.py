@@ -2,7 +2,6 @@ import unittest
 import subprocess
 import os
 import time
-import io
 import psycopg2
 
 
@@ -10,13 +9,13 @@ class TestE2E(unittest.TestCase):
     JAR_PATH = "./PPO_f/app_cli/build/libs/app_cli-1.0-SNAPSHOT.jar"
 
     def setUp(self):
-        # Параметры для CI (аналог integration-tests)
-        self.db_host = os.getenv("POSTGRES_HOST", "postgres")  # <-- важно!
+        # Параметры для CI
+        self.db_host = os.getenv("POSTGRES_HOST", "postgres")
         self.db_port = os.getenv("POSTGRES_PORT", "5432")
         self.db_user = os.getenv("POSTGRES_USER", "testuser")
         self.db_pass = os.getenv("POSTGRES_PASSWORD", "testpassword")
         self.db_name = os.getenv("POSTGRES_DB", "testdb")
-    
+
         # Ждём доступности PostgreSQL
         for _ in range(20):
             try:
@@ -34,9 +33,9 @@ class TestE2E(unittest.TestCase):
                 time.sleep(3)
         else:
             raise Exception("❌ Не удалось подключиться к PostgreSQL")
-    
+
         cur = self.conn.cursor()
-    
+
         # Создаём таблицы
         cur.execute("""
         CREATE TABLE IF NOT EXISTS tag (
@@ -59,11 +58,11 @@ class TestE2E(unittest.TestCase):
             tags_id BIGINT
         );
         """)
-    
+
         tags = ['walking', 'watching TV', 'swimming', 'sleeping']
         for t in tags:
             cur.execute("INSERT INTO tag (name) VALUES (%s) ON CONFLICT (name) DO NOTHING;", (t,))
-    
+
         cur.execute("""
         INSERT INTO question (question, is_extended)
         VALUES
@@ -71,7 +70,7 @@ class TestE2E(unittest.TestCase):
             ('How do you like to spend your time?', TRUE)
         ON CONFLICT DO NOTHING;
         """)
-    
+
         cur.execute("""
         INSERT INTO question_tags (question_id, tags_id)
         SELECT q.id, t.id
@@ -84,17 +83,17 @@ class TestE2E(unittest.TestCase):
         )
         ON CONFLICT DO NOTHING;
         """)
-    
+
         self.conn.commit()
         cur.close()
-    
+
         # Переменные окружения для JAR
         jdbc_url = f"jdbc:postgresql://{self.db_host}:{self.db_port}/{self.db_name}"
         self.env = os.environ.copy()
         self.env["SPRING_DATASOURCE_URL"] = jdbc_url
         self.env["SPRING_DATASOURCE_USERNAME"] = self.db_user
         self.env["SPRING_DATASOURCE_PASSWORD"] = self.db_pass
-    
+
         # Запуск JAR
         self.process = subprocess.Popen(
             ["java", "-Dserver.port=9196", "-Dfile.encoding=UTF-8", "-jar", self.JAR_PATH],
@@ -102,13 +101,9 @@ class TestE2E(unittest.TestCase):
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             env=self.env,
-            bufsize=0,
-            universal_newlines=True
+            bufsize=1,
+            text=True  # строковый режим
         )
-
-        self.process.stdout = io.TextIOWrapper(self.process.stdout, encoding='utf-8', errors='replace')
-        self.process.stdin = io.TextIOWrapper(self.process.stdin, encoding='utf-8', write_through=True)
-
 
     def tearDown(self):
         try:
