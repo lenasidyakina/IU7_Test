@@ -102,8 +102,10 @@ class TestE2E(unittest.TestCase):
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             env=self.env,
-            bufsize=1
+            bufsize=0,
+            universal_newlines=True
         )
+
         self.process.stdout = io.TextIOWrapper(self.process.stdout, encoding='utf-8', errors='replace')
         self.process.stdin = io.TextIOWrapper(self.process.stdin, encoding='utf-8', write_through=True)
 
