@@ -7,20 +7,14 @@ WORKDIR /app
 # Устанавливаем OpenJDK 21, curl, psycopg2 и необходимые инструменты
 RUN apt-get update && \
     apt-get install -y openjdk-21-jdk curl gcc libpq-dev && \
-    pip install --no-cache-dir psycopg2-binary pexpect pytest pytest-html requests && \
+    pip install --no-cache-dir psycopg2-binary pexpect&& \
     rm -rf /var/lib/apt/lists/*
-
-# Создаем директорию для результатов и устанавливаем права
-RUN mkdir -p /app/PPO_f/test-results && chmod -R 777 /app/PPO_f/test-results
 
 # Копируем весь код проекта
 COPY PPO_f /app/PPO_f
 
 # Копируем собранный JAR
 COPY build/libs/app_cli-1.0-SNAPSHOT.jar /app/build/libs/
-
-# Устанавливаем права на запись
-RUN chmod -R 777 /app/PPO_f/test-results
 
 # По умолчанию запускаем Python тесты
 CMD ["python3", "-m", "unittest", "discover", "-s", "PPO_f", "-p", "main.py"]
