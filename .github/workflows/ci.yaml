@@ -58,7 +58,8 @@ jobs:
             -e POSTGRES_USER=testuser \
             -e POSTGRES_PASSWORD=testpassword \
             -e POSTGRES_DB=testdb \
-            --network host \
             -v ${{ github.workspace }}/build/libs:/app/build/libs \
+            --network "github_network" \
             e2e-test-image
+
 
