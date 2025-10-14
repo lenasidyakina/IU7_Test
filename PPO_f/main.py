@@ -88,14 +88,14 @@ class TestE2E(unittest.TestCase):
         self.env["SPRING_DATASOURCE_USERNAME"] = self.db_user
         self.env["SPRING_DATASOURCE_PASSWORD"] = self.db_pass
 
-        # Запуск JAR через pexpect (создаёт псевдоконсоль!)
+        # Запуск JAR через pexpect (создаёт псевдоконсоль)
         self.child = pexpect.spawn(
             f'java -Dfile.encoding=UTF-8 -jar {self.JAR_PATH}',
             env=self.env,
             encoding='utf-8',
             timeout=30
         )
-        self.child.logfile = None  # Можно поставить sys.stdout для дебага
+        self.child.logfile = None
 
     def tearDown(self):
         if hasattr(self, "child") and self.child.isalive():
@@ -191,25 +191,23 @@ class TestE2E(unittest.TestCase):
         self._write("5")
         self._wait_for("Анкета успешно создана")
 
-        # 8. Получение списка потенциальных друзей (user2)
+        # 8. Получение списка потенциальных друзей (для user2)
         self._wait_for("1 - создать анкету")
-        self._write("3")  # пункт "получить список потенциальных друзей"
+        self._write("3")
         self._wait_for("Ваши потенциальные друзья:")
 
-        # 9. Добавляем найденную анкету в избранное
-        # программа напечатает user1 и id
-        # теперь меню выбора
+        # 9. Добавление найденной анкеты в избранное
         self._wait_for("1 - добавить в чёрный список")
-        self._write("2")  # добавить в избранное
+        self._write("2")
         self._wait_for("Выберете номер анкеты:")
-        self._write("1")  # допустим, первая анкета
+        self._write("1")
 
         # 10. Проверяем, что избранное отобразилось корректно
         self._wait_for("1 - создать анкету")
-        self._write("4")  # вывести избранное
-        output = self._wait_for("user1")  # ждём, что появится имя user1
+        self._write("4")
+        output = self._wait_for("user1")
 
-        print("✅ E2E тест завершён успешно — анкета добавлена в избранное")
+        print("E2E тест завершён успешно")
 
 
 if __name__ == "__main__":
