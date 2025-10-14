@@ -5,33 +5,27 @@ import time
 import io
 import psycopg2
 
-# -----------------------------------
-# Настройки подключения к PostgreSQL
-# -----------------------------------
-POSTGRES_HOST = os.environ.get("POSTGRES_HOST", "localhost")
-POSTGRES_PORT = os.environ.get("POSTGRES_PORT", "5432")
-POSTGRES_USER = os.environ.get("POSTGRES_USER", "postgres")
-POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "postgres")
-POSTGRES_DB = os.environ.get("POSTGRES_DB", "testdb")
-
-# -----------------------------------
-# Путь к JAR
-# -----------------------------------
-JAR_PATH = os.path.join("PPO_f", "app_cli", "build", "libs", "app_cli-1.0-SNAPSHOT.jar")
-
 
 class TestE2E(unittest.TestCase):
+    JAR_PATH = "./PPO_f/app_cli/build/libs/app_cli-1.0-SNAPSHOT.jar"
 
     def setUp(self):
-        # 1. Ждём, пока PostgreSQL станет доступен
+        # Параметры для CI (аналог integration-tests)
+        self.db_host = os.getenv("POSTGRES_HOST", "postgres")
+        self.db_port = os.getenv("POSTGRES_PORT", "5432")
+        self.db_user = os.getenv("POSTGRES_USER", "testuser")
+        self.db_pass = os.getenv("POSTGRES_PASSWORD", "testpassword")
+        self.db_name = os.getenv("POSTGRES_DB", "testdb")
+
+        # 1. Ждём, пока PostgreSQL поднимется
         for _ in range(20):
             try:
                 self.conn = psycopg2.connect(
-                    host=POSTGRES_HOST,
-                    port=POSTGRES_PORT,
-                    user=POSTGRES_USER,
-                    password=POSTGRES_PASSWORD,
-                    database=POSTGRES_DB
+                    host=self.db_host,
+                    port=self.db_port,
+                    user=self.db_user,
+                    password=self.db_pass,
+                    dbname=self.db_name
                 )
                 break
             except psycopg2.OperationalError:
@@ -40,12 +34,12 @@ class TestE2E(unittest.TestCase):
         else:
             raise Exception("❌ Не удалось подключиться к PostgreSQL")
 
-        self.cur = self.conn.cursor()
+        cur = self.conn.cursor()
 
-        # 2. Создаём минимальные таблицы
-        self.cur.execute("""
+        # 2. Создаём таблицы и тестовые данные
+        cur.execute("""
         CREATE TABLE IF NOT EXISTS tag (
-            id BIGSERIAL PRIMARY KEY,
+            id   BIGSERIAL PRIMARY KEY,
             name TEXT UNIQUE
         );
         CREATE TABLE IF NOT EXISTS question (
@@ -55,7 +49,7 @@ class TestE2E(unittest.TestCase):
         );
         CREATE TABLE IF NOT EXISTS question_tags (
             question_id BIGINT NOT NULL REFERENCES question(id) ON DELETE CASCADE,
-            tags_id BIGINT NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
+            tags_id     BIGINT NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
             UNIQUE (question_id, tags_id)
         );
         DROP TABLE IF EXISTS extended_answer_tags CASCADE;
@@ -64,24 +58,45 @@ class TestE2E(unittest.TestCase):
             tags_id BIGINT
         );
         """)
-        self.conn.commit()
 
-        # 3. Добавляем базовые данные
         tags = ['walking', 'watching TV', 'swimming', 'sleeping']
         for t in tags:
-            self.cur.execute("INSERT INTO tag (name) VALUES (%s) ON CONFLICT DO NOTHING;", (t,))
-        self.conn.commit()
+            cur.execute("INSERT INTO tag (name) VALUES (%s) ON CONFLICT (name) DO NOTHING;", (t,))
 
-        # 4. Настраиваем переменные окружения для JAR
-        jdbc_url = f"jdbc:postgresql://{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+        cur.execute("""
+        INSERT INTO question (question, is_extended)
+        VALUES
+            ('Do you love swimming or watching TV?', FALSE),
+            ('How do you like to spend your time?', TRUE)
+        ON CONFLICT DO NOTHING;
+        """)
+
+        cur.execute("""
+        INSERT INTO question_tags (question_id, tags_id)
+        SELECT q.id, t.id
+        FROM question q, tag t
+        WHERE (q.question, t.name) IN (
+            ('Do you love swimming or watching TV?', 'watching TV'),
+            ('Do you love swimming or watching TV?', 'swimming'),
+            ('How do you like to spend your time?', 'walking'),
+            ('How do you like to spend your time?', 'sleeping')
+        )
+        ON CONFLICT DO NOTHING;
+        """)
+
+        self.conn.commit()
+        cur.close()
+
+        # 3. Настраиваем переменные окружения для JAR
+        jdbc_url = f"jdbc:postgresql://{self.db_host}:{self.db_port}/{self.db_name}"
         self.env = os.environ.copy()
         self.env["SPRING_DATASOURCE_URL"] = jdbc_url
-        self.env["SPRING_DATASOURCE_USERNAME"] = POSTGRES_USER
-        self.env["SPRING_DATASOURCE_PASSWORD"] = POSTGRES_PASSWORD
+        self.env["SPRING_DATASOURCE_USERNAME"] = self.db_user
+        self.env["SPRING_DATASOURCE_PASSWORD"] = self.db_pass
 
-        # 5. Запускаем JAR
+        # 4. Запускаем jar
         self.process = subprocess.Popen(
-            ["java", "-Dserver.port=9196", "-Dfile.encoding=UTF-8", "-jar", JAR_PATH],
+            ["java", "-Dserver.port=9196", "-Dfile.encoding=UTF-8", "-jar", self.JAR_PATH],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -104,8 +119,6 @@ class TestE2E(unittest.TestCase):
             if hasattr(self.process, "stdin") and not self.process.stdin.closed:
                 self.process.stdin.close()
         finally:
-            if hasattr(self, "cur"):
-                self.cur.close()
             if hasattr(self, "conn"):
                 self.conn.close()
 
@@ -113,7 +126,7 @@ class TestE2E(unittest.TestCase):
         self.process.stdin.write(text + "\n")
         self.process.stdin.flush()
 
-    def _wait_for(self, substr, timeout=25):
+    def _wait_for(self, substr, timeout=30):
         start = time.time()
         output = ""
         while time.time() - start < timeout:
@@ -128,15 +141,13 @@ class TestE2E(unittest.TestCase):
         raise AssertionError(f"Не дождались: '{substr}'\nВывод:\n{output}")
 
     def test_full_flow(self):
-        # пример: регистрация, вход, создание анкеты и т.д.
-        # можно вставить твой код из предыдущей версии теста
         self._wait_for("1 - зарегистрироваться")
         self._write("1")
         self._wait_for("логин:")
         self._write("user1")
         self._wait_for("пароль:")
         self._write("pass1")
-        print("✅ Базовая регистрация прошла успешно")
+        print("✅ Регистрация прошла успешно")
 
 
 if __name__ == "__main__":
