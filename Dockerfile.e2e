@@ -1,28 +1,19 @@
-# Используем Python для тестового контейнера
 FROM python:3.11-slim
 
-# Устанавливаем зависимости
 RUN apt-get update && apt-get install -y openjdk-17-jdk curl && rm -rf /var/lib/apt/lists/*
 
-# Создаём рабочую директорию
 WORKDIR /app
 
-# Копируем код проекта
 COPY PPO_f /app/PPO_f
-COPY requirements.txt /app/requirements.txt
 
-# Устанавливаем Python-зависимости
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir psycopg2-binary requests
 
-# Копируем собранный jar (из workflow он будет смонтирован в volume)
 VOLUME ["/app/PPO_f/app_cli/build/libs"]
 
-# Переменные окружения для PostgreSQL (по умолчанию)
 ENV POSTGRES_HOST=postgres \
     POSTGRES_PORT=5432 \
     POSTGRES_USER=testuser \
     POSTGRES_PASSWORD=testpassword \
     POSTGRES_DB=testdb
 
-# Основная команда для запуска тестов
 CMD ["python3", "-m", "unittest", "discover", "-s", "/app/PPO_f", "-p", "main.py"]
