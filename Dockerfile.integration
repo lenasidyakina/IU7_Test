@@ -5,7 +5,7 @@ WORKDIR /app
 # Копируем Gradle и исходники из PPO_f
 COPY PPO_f/gradlew ./gradlew
 COPY PPO_f/gradle ./gradle
-COPY PPO_f/build.gradle.kts ./build.gradle.kts
+COPY PPO_f/build.gradle ./build.gradle
 COPY PPO_f ./PPO_f
 
 RUN chmod +x ./gradlew
