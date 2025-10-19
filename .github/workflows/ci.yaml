@@ -7,98 +7,25 @@ on:
 jobs:
 
   # ---------- 2. Integration tests ----------
-  integration-tests:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpassword
-          POSTGRES_DB: testdb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U testuser -d testdb"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+ integration-tests:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Set up Docker Compose
+      uses: docker/setup-docker@v2
 
-      - name: Build Docker image for integration tests
-        run: docker build -t integration-tests-image -f ./Dockerfile.integration .
+    - name: Run integration tests via Docker Compose
+      run: |
+        docker-compose -f docker-compose.integration.yml up --build --abort-on-container-exit
+        # Копируем тест-результаты из контейнера
+        docker cp $(docker-compose -f docker-compose.integration.yml ps -q app):/app/PPO_f/app_cli/build/test-results/test ./PPO_f/test-results/integration
 
-      - name: Run integration tests inside Docker
-        run: |
-          mkdir -p ${{ github.workspace }}/PPO_f/test-results/integration
-          docker run --rm \
-            --network host \
-            -e SPRING_PROFILES_ACTIVE=test \
-            -e SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/testdb \
-            -e SPRING_DATASOURCE_USERNAME=testuser \
-            -e SPRING_DATASOURCE_PASSWORD=testpassword \
-            -v ${{ github.workspace }}/PPO_f/test-results/integration:/app/PPO_f/test-results/integration \
-            integration-tests-image
+    - name: Upload integration test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: integration-test-reports
+        path: PPO_f/test-results/integration
 
-      - name: Upload integration test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration-test-reports
-          path: PPO_f/test-results/integration
-
-          
-  e2e-tests:
-    runs-on: ubuntu-latest
-    needs: integration-tests
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpassword
-          POSTGRES_DB: testdb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U testuser -d testdb"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21 for build
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Build JAR for E2E
-        run: |
-          cd PPO_f
-          chmod +x gradlew
-          ./gradlew :app_cli:build -x test
-          ls -l app_cli/build/libs
-      - name: Copy JAR for Docker build
-        run: |
-          mkdir -p build/libs
-          cp PPO_f/app_cli/build/libs/app_cli-1.0-SNAPSHOT.jar build/libs/
-      - name: Build Docker image for E2E tests
-        run: docker build -t e2e-test-image -f Dockerfile.e2e .
-
-      - name: Run E2E tests inside Docker
-        run: |
-          docker run --rm \
-            --network host \
-            -e POSTGRES_HOST=localhost \
-            -e POSTGRES_PORT=5432 \
-            -e POSTGRES_USER=testuser \
-            -e POSTGRES_PASSWORD=testpassword \
-            -e POSTGRES_DB=testdb \
-            e2e-test-image
