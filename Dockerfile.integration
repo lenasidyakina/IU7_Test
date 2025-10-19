@@ -1,17 +1,17 @@
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
-# Копируем Gradle и исходники из PPO_f
-COPY PPO_f/gradlew ./gradlew
-COPY PPO_f/gradle ./gradle
-COPY PPO_f/build.gradle ./build.gradle
-COPY PPO_f ./PPO_f
+# Копируем весь проект PPO_f
+COPY PPO_f PPO_f
 
-RUN chmod +x ./gradlew
+# Даем права на запуск gradlew
+RUN chmod +x PPO_f/gradlew
+
+WORKDIR /app/PPO_f
 
 # Сборка без тестов
-RUN ./gradlew build -x test
+RUN ./gradlew build -x test --stacktrace --info
 
 # Запуск интеграционных тестов
-CMD ["./gradlew", ":app_cli:test"]
+ENTRYPOINT ["./gradlew", ":app_cli:test", "--stacktrace", "--info"]
