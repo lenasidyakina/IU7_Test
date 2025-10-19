@@ -2,7 +2,7 @@ FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
-# Копируем весь проект PPO_f
+# Копируем весь проект
 COPY PPO_f PPO_f
 
 # Даем права на запуск gradlew
@@ -10,5 +10,9 @@ RUN chmod +x PPO_f/gradlew
 
 WORKDIR /app/PPO_f
 
-# Запуск интеграционных тестов
-ENTRYPOINT ["./gradlew", ":app_cli:test", "--stacktrace", "--info"]
+# Копируем скрипт ожидания Postgres
+COPY wait-for-postgres.sh /app/wait-for-postgres.sh
+RUN chmod +x /app/wait-for-postgres.sh
+
+# ENTRYPOINT запускаем тесты через скрипт ожидания
+ENTRYPOINT ["/app/wait-for-postgres.sh"]
