@@ -1,13 +1,12 @@
-# Используем JDK 21
 FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
 
-# Копируем Gradle и исходники
-COPY settings.gradle.kts ./ 
-COPY build.gradle.kts ./ 
-COPY gradle ./gradle 
-COPY gradlew ./ 
+# Копируем Gradle и исходники из PPO_f
+COPY PPO_f/gradlew ./gradlew
+COPY PPO_f/gradle ./gradle
+COPY PPO_f/build.gradle.kts ./build.gradle.kts
+COPY PPO_f/settings.gradle.kts ./settings.gradle.kts
 COPY PPO_f ./PPO_f
 
 RUN chmod +x ./gradlew
@@ -15,5 +14,5 @@ RUN chmod +x ./gradlew
 # Сборка без тестов
 RUN ./gradlew build -x test
 
-# По умолчанию запускаем тесты в app_cli
+# Запуск интеграционных тестов
 CMD ["./gradlew", ":app_cli:test"]
