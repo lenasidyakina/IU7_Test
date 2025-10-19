@@ -1,4 +1,4 @@
-name: Tests (Unit + Integration)
+name: Integration Tests
 
 on:
   pull_request:
@@ -8,34 +8,28 @@ jobs:
   integration-tests:
     runs-on: ubuntu-latest
     services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpassword
-          POSTGRES_DB: testdb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U testuser -d testdb"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+      docker:
+        image: docker:24.0.5-dind
+        options: --privileged
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker
-        uses: docker/setup-docker-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Run integration tests via Docker Compose
+      - name: Build and run integration tests
         run: |
-          mkdir -p ${{ github.workspace }}/PPO_f/test-results/integration
-          # Поднимаем контейнеры и выполняем тесты
+          # Создаём директорию для результатов
+          mkdir -p PPO_f/test-results/integration
+
+          # Поднимаем контейнеры и запускаем тесты
           docker compose -f docker-compose.integration.yml up --build --abort-on-container-exit
+
           # Копируем результаты тестов из контейнера app
-          docker cp $(docker compose -f docker-compose.integration.yml ps -q app):/app/PPO_f/app_cli/build/test-results/test ./PPO_f/test-results/integration
+          APP_CONTAINER=$(docker compose -f docker-compose.integration.yml ps -q app)
+          docker cp $APP_CONTAINER:/app/PPO_f/app_cli/build/test-results/test PPO_f/test-results/integration
 
       - name: Upload integration test results
         if: always()
@@ -43,6 +37,3 @@ jobs:
         with:
           name: integration-test-reports
           path: PPO_f/test-results/integration
-
-
-
