@@ -6,7 +6,6 @@ WORKDIR /app
 COPY PPO_f/gradlew ./gradlew
 COPY PPO_f/gradle ./gradle
 COPY PPO_f/build.gradle.kts ./build.gradle.kts
-COPY PPO_f/settings.gradle.kts ./settings.gradle.kts
 COPY PPO_f ./PPO_f
 
 RUN chmod +x ./gradlew
