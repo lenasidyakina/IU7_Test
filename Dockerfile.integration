@@ -4,11 +4,11 @@ FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
 # Копируем Gradle и исходники
-COPY settings.gradle.kts ./
-COPY build.gradle.kts ./
-COPY gradle ./gradle
-COPY gradlew ./
-COPY PPO_F ./PPO_F
+COPY settings.gradle.kts ./ 
+COPY build.gradle.kts ./ 
+COPY gradle ./gradle 
+COPY gradlew ./ 
+COPY PPO_f ./PPO_f
 
 RUN chmod +x ./gradlew
 
