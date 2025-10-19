@@ -10,8 +10,5 @@ RUN chmod +x PPO_f/gradlew
 
 WORKDIR /app/PPO_f
 
-# Сборка без тестов
-RUN ./gradlew build -x test --stacktrace --info
-
 # Запуск интеграционных тестов
 ENTRYPOINT ["./gradlew", ":app_cli:test", "--stacktrace", "--info"]
