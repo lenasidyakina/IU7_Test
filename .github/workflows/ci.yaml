@@ -5,27 +5,27 @@ on:
     branches: [ main, lab2 ]
 
 jobs:
-
   # ---------- 2. Integration tests ----------
- integration-tests:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Docker Compose
-      uses: docker/setup-docker@v2
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v2
 
-    - name: Run integration tests via Docker Compose
-      run: |
-        docker-compose -f docker-compose.integration.yml up --build --abort-on-container-exit
-        # Копируем тест-результаты из контейнера
-        docker cp $(docker-compose -f docker-compose.integration.yml ps -q app):/app/PPO_f/app_cli/build/test-results/test ./PPO_f/test-results/integration
+      - name: Run integration tests via Docker Compose
+        run: |
+          docker-compose -f docker-compose.integration.yml up --build --abort-on-container-exit
+          # Копируем тест-результаты из контейнера
+          docker cp $(docker-compose -f docker-compose.integration.yml ps -q app):/app/PPO_f/app_cli/build/test-results/test ./PPO_f/test-results/integration
 
-    - name: Upload integration test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: integration-test-reports
-        path: PPO_f/test-results/integration
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-reports
+          path: PPO_f/test-results/integration
+
 
