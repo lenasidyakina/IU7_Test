@@ -5,9 +5,23 @@ on:
     branches: [ main, lab2 ]
 
 jobs:
-  # ---------- 2. Integration tests ----------
   integration-tests:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U testuser -d testdb"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,9 +31,11 @@ jobs:
 
       - name: Run integration tests via Docker Compose
         run: |
-          docker-compose -f docker-compose.integration.yml up --build --abort-on-container-exit
-          # Копируем тест-результаты из контейнера
-          docker cp $(docker-compose -f docker-compose.integration.yml ps -q app):/app/PPO_f/app_cli/build/test-results/test ./PPO_f/test-results/integration
+          mkdir -p ${{ github.workspace }}/PPO_f/test-results/integration
+          # Поднимаем контейнеры и выполняем тесты
+          docker compose -f docker-compose.integration.yml up --build --abort-on-container-exit
+          # Копируем результаты тестов из контейнера app
+          docker cp $(docker compose -f docker-compose.integration.yml ps -q app):/app/PPO_f/app_cli/build/test-results/test ./PPO_f/test-results/integration
 
       - name: Upload integration test results
         if: always()
@@ -27,5 +43,6 @@ jobs:
         with:
           name: integration-test-reports
           path: PPO_f/test-results/integration
+
 
 
