@@ -8,13 +8,12 @@ RUN chmod +x PPO_f/gradlew
 
 WORKDIR /app/PPO_f
 
-# Запуск тестов, сбор результатов и генерация объединённого Allure отчёта
 ENTRYPOINT ["bash", "-c", "\
   ./gradlew :DB:test :BL:test --stacktrace --info && \
   mkdir -p build/allure-results-aggregate && \
   cp -r DB/build/allure-results/* build/allure-results-aggregate/ && \
   cp -r BL/build/allure-results/* build/allure-results-aggregate/ && \
-  ./gradlew allureReport -Dallure.results.directory=build/allure-results-aggregate \
+  ./gradlew :DB:allureReport :BL:allureReport -Dallure.results.directory=build/allure-results-aggregate \
 "]
 
 
