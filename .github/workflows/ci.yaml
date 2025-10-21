@@ -22,10 +22,18 @@ jobs:
           -v ${{ github.workspace }}/PPO_f/test-results/unit:/app/PPO_f/build/reports/allure-report \
           unit-tests-image
 
-    # 📦 Загружаем HTML отчёт
-    - name: Upload Allure HTML report
+    # 📦 Загружаем HTML отчёт из BL и DB
+    - name: Upload Allure HTML report (BL)
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: allure-report
-        path: PPO_f/test-results/unit
+        name: allure-report-BL
+        path: PPO_f/BL/build/reports/allure-report/allureReport
+
+    - name: Upload Allure HTML report (DB)
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: allure-report-DB
+        path: PPO_f/DB/build/reports/allure-report/allureReport
+
