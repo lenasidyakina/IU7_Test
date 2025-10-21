@@ -14,16 +14,18 @@ jobs:
     - name: Build Docker image for unit tests
       run: docker build -t unit-tests-image -f ./Dockerfile.unit .
 
-    - name: Run tests and generate combined Allure report
+    - name: Run tests and generate Allure report
       run: |
-        mkdir -p ${{ github.workspace }}/PPO_f/build/allure-results-aggregate
-        mkdir -p ${{ github.workspace }}/PPO_f/build/reports/allure-report
+        # Создаём папки для монтирования JSON и HTML отчёта
+        mkdir -p ${{ github.workspace }}/PPO_f/build/allure-results
+        mkdir -p ${{ github.workspace }}/PPO_f/build/reports/allure-report/allureReport
+
         docker run --rm \
-          -v ${{ github.workspace }}/PPO_f/build/allure-results-aggregate:/app/PPO_f/build/allure-results-aggregate \
-          -v ${{ github.workspace }}/PPO_f/build/reports/allure-report:/app/PPO_f/build/reports/allure-report \
+          -v ${{ github.workspace }}/PPO_f/build/allure-results:/app/PPO_f/build/allure-results \
+          -v ${{ github.workspace }}/PPO_f/build/reports/allure-report/allureReport:/app/PPO_f/build/reports/allure-report/allureReport \
           unit-tests-image
 
-    - name: Upload combined Allure HTML report
+    - name: Upload Allure HTML report
       if: always()
       uses: actions/upload-artifact@v4
       with:
