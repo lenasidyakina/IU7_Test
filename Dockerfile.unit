@@ -10,6 +10,6 @@ RUN chmod +x PPO_f/gradlew
 
 WORKDIR /app/PPO_f
 
-# Запуск unit-тестов с Allure и генерацией HTML-отчета
-ENTRYPOINT ["bash", "-c", "./gradlew :DB:test :BL:test --stacktrace --info && ./gradlew allureReport"]
+# Только для DB и BL модулей
+ENTRYPOINT ["bash", "-c", "./gradlew :DB:test :BL:test --stacktrace --info && ./gradlew :DB:allureReport :BL:allureReport"]
 
