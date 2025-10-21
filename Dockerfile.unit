@@ -16,11 +16,12 @@ RUN chmod +x PPO_f/gradlew
 
 WORKDIR /app/PPO_f
 
-# Запуск тестов и генерация отчёта
 ENTRYPOINT ["bash", "-c", "\
   echo 'Running DB and BL tests...' && \
   ./gradlew :DB:test :BL:test --stacktrace --info && \
-  echo 'Allure results content:' && ls -la build/allure-results && \
-  allure generate $PWD/build/allure-results -o $PWD/build/reports/allure-report --clean && \
-  echo 'Allure report generated in build/reports/allure-report' \
+  echo 'Generating Allure report...' && \
+  allure generate build/allure-results -o build/reports/allure-report --clean && \
+  echo 'Allure report generated in build/reports/allure-report' && \
+  ls -R build/reports/allure-report \
 "]
+
