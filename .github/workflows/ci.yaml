@@ -7,7 +7,6 @@ on:
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -15,26 +14,18 @@ jobs:
     - name: Build Docker image for unit tests
       run: docker build -t unit-tests-image -f ./Dockerfile.unit .
 
-    - name: Run tests and generate Allure report in Docker
+    - name: Run tests and generate combined Allure report
       run: |
-        mkdir -p ${{ github.workspace }}/PPO_f/BL/build/reports/allure-report
-        mkdir -p ${{ github.workspace }}/PPO_f/DB/build/reports/allure-report
+        mkdir -p ${{ github.workspace }}/PPO_f/build/allure-results-aggregate
+        mkdir -p ${{ github.workspace }}/PPO_f/build/reports/allure-report
         docker run --rm \
-          -v ${{ github.workspace }}/PPO_f/BL/build/reports/allure-report:/app/PPO_f/BL/build/reports/allure-report \
-          -v ${{ github.workspace }}/PPO_f/DB/build/reports/allure-report:/app/PPO_f/DB/build/reports/allure-report \
+          -v ${{ github.workspace }}/PPO_f/build/allure-results-aggregate:/app/PPO_f/build/allure-results-aggregate \
+          -v ${{ github.workspace }}/PPO_f/build/reports/allure-report:/app/PPO_f/build/reports/allure-report \
           unit-tests-image
 
-    # 📦 Загружаем HTML отчёты
-    - name: Upload Allure HTML report (BL)
+    - name: Upload combined Allure HTML report
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: allure-report-BL
-        path: PPO_f/BL/build/reports/allure-report/allureReport
-
-    - name: Upload Allure HTML report (DB)
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: allure-report-DB
-        path: PPO_f/DB/build/reports/allure-report/allureReport
+        name: allure-report
+        path: PPO_f/build/reports/allure-report/allureReport
