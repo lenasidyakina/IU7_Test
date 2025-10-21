@@ -15,14 +15,16 @@ jobs:
     - name: Build Docker image for unit tests
       run: docker build -t unit-tests-image -f ./Dockerfile.unit .
 
-    - name: Run unit tests in Docker (JUnit + Allure)
+    - name: Run tests and generate Allure report in Docker
       run: |
-        mkdir -p ${{ github.workspace }}/PPO_f/test-results/unit
+        mkdir -p ${{ github.workspace }}/PPO_f/BL/build/reports/allure-report
+        mkdir -p ${{ github.workspace }}/PPO_f/DB/build/reports/allure-report
         docker run --rm \
-          -v ${{ github.workspace }}/PPO_f/test-results/unit:/app/PPO_f/build/reports/allure-report \
+          -v ${{ github.workspace }}/PPO_f/BL/build/reports/allure-report:/app/PPO_f/BL/build/reports/allure-report \
+          -v ${{ github.workspace }}/PPO_f/DB/build/reports/allure-report:/app/PPO_f/DB/build/reports/allure-report \
           unit-tests-image
 
-    # 📦 Загружаем HTML отчёт из BL и DB
+    # 📦 Загружаем HTML отчёты
     - name: Upload Allure HTML report (BL)
       if: always()
       uses: actions/upload-artifact@v4
@@ -36,4 +38,3 @@ jobs:
       with:
         name: allure-report-DB
         path: PPO_f/DB/build/reports/allure-report/allureReport
-
