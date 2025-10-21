@@ -17,13 +17,12 @@ jobs:
 
     - name: Run tests and generate Allure report
       run: |
-        # Создаём папку только для JSON результатов
         mkdir -p ${{ github.workspace }}/PPO_f/build/allure-results
+        mkdir -p ${{ github.workspace }}/PPO_f/build/reports/allure-report/allureReports
 
-        # Монтируем JSON и HTML папки
         docker run --rm \
           -v ${{ github.workspace }}/PPO_f/build/allure-results:/app/PPO_f/build/allure-results \
-          -v ${{ github.workspace }}/PPO_f/build/reports/allure-report:/app/PPO_f/build/reports/allure-report \
+          -v ${{ github.workspace }}/PPO_f/build/reports/allure-report/allureReports:/app/PPO_f/build/reports/allure-report/allureReports \
           unit-tests-image
 
     - name: Upload Allure HTML report
@@ -31,6 +30,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: allure-report
-        path: PPO_f/build/reports/allure-report/index.html
-    
-
+        path: PPO_f/build/reports/allure-report/allureReports
