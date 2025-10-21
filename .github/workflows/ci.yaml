@@ -18,16 +18,17 @@ jobs:
     - name: Run tests and generate Allure report
       run: |
         mkdir -p ${{ github.workspace }}/PPO_f/build/allure-results
-    
+        mkdir -p ${{ github.workspace }}/PPO_f/build/reports/allure-report
+
         docker run --rm \
           -v ${{ github.workspace }}/PPO_f/build/allure-results:/app/PPO_f/build/allure-results \
-          -v ${{ github.workspace }}/PPO_f/build/reports/allure-report/allureReports:/app/PPO_f/build/reports/allure-report/allureReports \
+          -v ${{ github.workspace }}/PPO_f/build/reports/allure-report:/app/PPO_f/build/reports/allure-report \
           unit-tests-image
-
 
     - name: Upload Allure HTML report
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: allure-report
-        path: PPO_f/build/reports/allure-report/allureReports
+        path: PPO_f/build/reports/allure-report
+
