@@ -31,4 +31,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: allure-report
-        path: PPO_f/build/reports/allure-report/allureReport/index.html
+        path: PPO_f/build/reports/allure-report/allureReport
+
