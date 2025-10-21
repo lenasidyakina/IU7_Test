@@ -2,17 +2,20 @@ FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
-# Копируем весь проект
-COPY PPO_f PPO_f
+RUN apt-get update && apt-get install -y postgresql-client curl dos2unix && rm -rf /var/lib/apt/lists/*
 
-# Даем права на запуск gradlew
-RUN chmod +x PPO_f/gradlew
+COPY PPO_f /app/PPO_f
+COPY wait-for-postgres.sh /app/wait-for-postgres.sh
+
+RUN dos2unix /app/PPO_f/gradlew /app/wait-for-postgres.sh && \
+    chmod +x /app/PPO_f/gradlew /app/wait-for-postgres.sh
 
 WORKDIR /app/PPO_f
 
-# Копируем скрипт ожидания Postgres
-COPY wait-for-postgres.sh /app/wait-for-postgres.sh
-RUN chmod +x /app/wait-for-postgres.sh
+ENV POSTGRES_HOST=postgres \
+    POSTGRES_PORT=5432 \
+    POSTGRES_USER=testuser \
+    POSTGRES_PASSWORD=testpassword \
+    POSTGRES_DB=testdb
 
-# ENTRYPOINT запускаем тесты через скрипт ожидания
 ENTRYPOINT ["/app/wait-for-postgres.sh"]
