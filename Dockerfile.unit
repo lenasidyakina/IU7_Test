@@ -4,20 +4,23 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y curl tar
 
-# Скачиваем и устанавливаем Allure CLI (версия 2.27.0)
+# Устанавливаем Allure CLI (версия 2.27.0)
 RUN curl -fSL -o /tmp/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz \
     && tar -zxvf /tmp/allure.tgz -C /opt/ \
     && ln -s /opt/allure-2.27.0/bin/allure /usr/bin/allure \
     && rm /tmp/allure.tgz
 
-# Копируем весь проект
+# Копируем проект
 COPY PPO_f PPO_f
 RUN chmod +x PPO_f/gradlew
 
 WORKDIR /app/PPO_f
 
-# Запуск только DB и BL тестов и генерация Allure-отчёта
+# Запуск тестов и генерация отчёта
 ENTRYPOINT ["bash", "-c", "\
+  echo 'Running DB and BL tests...' && \
   ./gradlew :DB:test :BL:test --stacktrace --info && \
-  allure generate build/allure-results -o build/reports/allure-report/allureReports --clean \
+  echo 'Allure results content:' && ls -la build/allure-results && \
+  allure generate $PWD/build/allure-results -o $PWD/build/reports/allure-report --clean && \
+  echo 'Allure report generated in build/reports/allure-report' \
 "]
