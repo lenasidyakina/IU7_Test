@@ -2,14 +2,13 @@ FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
-# Устанавливаем необходимые утилиты
-RUN apt-get update && apt-get install -y curl unzip
 
-# Устанавливаем Allure CLI
-RUN curl -o allure.zip -L https://github.com/allure-framework/allure2/releases/download/2.27.2/allure-2.27.2.zip \
-    && unzip allure.zip -d /opt/ \
-    && rm allure.zip
+RUN apt-get update && apt-get install -y wget unzip
+RUN wget -q https://github.com/allure-framework/allure2/releases/download/2.27.2/allure-2.27.2.zip -O /tmp/allure.zip \
+    && unzip /tmp/allure.zip -d /opt/ \
+    && rm /tmp/allure.zip
 ENV PATH="/opt/allure-2.27.2/bin:${PATH}"
+
 
 # Копируем весь проект
 COPY PPO_f PPO_f
