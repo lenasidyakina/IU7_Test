@@ -11,8 +11,8 @@ WORKDIR /app/PPO_f
 ENTRYPOINT ["bash", "-c", "\
   ./gradlew :DB:test :BL:test --stacktrace --info && \
   mkdir -p build/allure-results-aggregate && \
-  cp -r DB/build/allure-results/* build/allure-results-aggregate/ && \
-  cp -r BL/build/allure-results/* build/allure-results-aggregate/ && \
+  cp -r build/allure-results/* build/allure-results-aggregate/ && \
+  cp -r build/allure-results/* build/allure-results-aggregate/ && \
   ./gradlew :DB:allureReport :BL:allureReport -Dallure.results.directory=build/allure-results-aggregate \
 "]
 
