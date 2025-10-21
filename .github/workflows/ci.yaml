@@ -7,6 +7,7 @@ on:
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -16,12 +17,13 @@ jobs:
 
     - name: Run tests and generate Allure report
       run: |
-        # Создаём папки для монтирования JSON и HTML отчёта
+        # Создаём папки для монтирования результатов и HTML
         mkdir -p ${{ github.workspace }}/PPO_f/build/allure-results
-        mkdir -p ${{ github.workspace }}/PPO_f/build/reports/allure-report
+        mkdir -p ${{ github.workspace }}/PPO_f/build/reports/allure-report/allureReport
+
         docker run --rm \
           -v ${{ github.workspace }}/PPO_f/build/allure-results:/app/PPO_f/build/allure-results \
-          -v ${{ github.workspace }}/PPO_f/build/reports/allure-report:/app/PPO_f/build/reports/allure-report \
+          -v ${{ github.workspace }}/PPO_f/build/reports/allure-report/allureReport:/app/PPO_f/build/reports/allure-report/allureReport \
           unit-tests-image
 
     - name: Upload Allure HTML report
