@@ -2,13 +2,14 @@ FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
+# Копируем весь проект
 COPY PPO_f PPO_f
 RUN chmod +x PPO_f/gradlew
 
 WORKDIR /app/PPO_f
 
-# Запуск тестов BL+DB и генерация Allure отчёта
+# Запуск только DB и BL тестов и генерация Allure-отчёта
 ENTRYPOINT ["bash", "-c", "\
   ./gradlew :DB:test :BL:test --stacktrace --info && \
-  ./gradlew :DB:allureReport :BL:allureReport \
+  ./gradlew :DB:allureReport :BL:allureReport -Dallure.results.directory=build/allure-results \
 "]
