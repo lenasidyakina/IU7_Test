@@ -19,5 +19,5 @@ WORKDIR /app/PPO_f
 # Запуск только DB и BL тестов и генерация Allure-отчёта
 ENTRYPOINT ["bash", "-c", "\
   ./gradlew :DB:test :BL:test --stacktrace --info && \
-  ./gradlew :DB:allureReport :BL:allureReport -D\"allure.results.directory=build/allure-results\" \
+  allure generate build/allure-results -o build/reports/allure-report/allureReports --clean \
 "]
