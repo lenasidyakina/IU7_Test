@@ -10,5 +10,6 @@ RUN chmod +x PPO_f/gradlew
 
 WORKDIR /app/PPO_f
 
-# Запуск unit-тестов сразу, без сборки Spring Boot
-ENTRYPOINT ["./gradlew", ":DB:test", ":BL:test", "--stacktrace", "--info"]
+# Запуск unit-тестов с Allure и генерацией HTML-отчета
+ENTRYPOINT ["bash", "-c", "./gradlew :DB:test :BL:test --stacktrace --info && ./gradlew allureReport"]
+
