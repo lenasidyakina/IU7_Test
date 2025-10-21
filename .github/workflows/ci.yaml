@@ -1,39 +1,29 @@
-name: Integration Tests
+name: Tests (Unit + Integration)
 
 on:
   pull_request:
     branches: [ main, lab2 ]
 
 jobs:
-  integration-tests:
+  unit-tests:
     runs-on: ubuntu-latest
-    services:
-      docker:
-        image: docker:24.0.5-dind
-        options: --privileged
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+    - name: Build Docker image for unit tests
+      run: docker build -t unit-tests-image -f ./Dockerfile.unit .
 
-      - name: Build and run integration tests
-        run: |
-          # Создаём директорию для результатов
-          mkdir -p PPO_f/test-results/integration
-
-          # Поднимаем контейнеры и запускаем тесты
-          docker compose -f docker-compose.integration.yml up --build --abort-on-container-exit
-
-          # Копируем результаты тестов из контейнера app
-          APP_CONTAINER=$(docker compose -f docker-compose.integration.yml ps -q app)
-          docker cp $APP_CONTAINER:/app/PPO_f/app_cli/build/test-results/test PPO_f/test-results/integration
-
-      - name: Upload integration test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration-test-reports
-          path: PPO_f/test-results/integration
+    - name: Run unit tests in Docker
+      run: |
+        mkdir -p ${{ github.workspace }}/PPO_f/test-results/unit
+        docker run --rm \
+          -v ${{ github.workspace }}/PPO_f/test-results/unit:/app/PPO_f/test-results \
+          unit-tests-image
+    - name: Upload unit test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: unit-test-reports
+        path: PPO_f/test-results/unit
