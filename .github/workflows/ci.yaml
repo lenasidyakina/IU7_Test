@@ -46,6 +46,7 @@ jobs:
           mkdir -p app_cli/build/allure-results
           mkdir -p app_cli/build/reports/allure-report
           ./gradlew :app_cli:test --stacktrace --info
+          ./gradlew allureReport -D"allure.results.directory=app_cli/build/allure-results" 
       - name: Upload Allure HTML report
         if: always()
         uses: actions/upload-artifact@v4
