@@ -5,63 +5,51 @@ on:
     branches: [ main, lab2 ]
 
 jobs:
-  unit-tests:
+  integration-tests:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U testuser -d testdb" 
+          --health-interval 5s 
+          --health-timeout 5s 
+          --health-retries 10
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Build Docker image for unit tests
-      run: docker build -t unit-tests-image -f ./Dockerfile.unit .
+    - name: Build Docker image for integration tests
+      run: docker build -t integration-tests-image -f ./Dockerfile.integration .
 
-    - name: Run tests and generate Allure report
+    - name: Run integration tests and generate Allure report
       run: |
         mkdir -p ${{ github.workspace }}/PPO_f/build/allure-results
         mkdir -p ${{ github.workspace }}/PPO_f/build/reports/allure-report
 
         docker run --rm \
+          --network host \
+          -e POSTGRES_HOST=localhost \
+          -e POSTGRES_PORT=5432 \
+          -e POSTGRES_USER=testuser \
+          -e POSTGRES_PASSWORD=testpassword \
+          -e POSTGRES_DB=testdb \
           -v ${{ github.workspace }}/PPO_f/build/allure-results:/app/PPO_f/build/allure-results \
           -v ${{ github.workspace }}/PPO_f/build/reports/allure-report:/app/PPO_f/build/reports/allure-report \
-          unit-tests-image
+          integration-tests-image
 
-    - name: Upload Allure HTML report
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: allure-report
-        path: PPO_f/build/reports/allure-report
-  integration-tests:
-    runs-on: ubuntu-latest
-    needs: unit-tests
-  
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-  
-    - name: Set up Docker Compose
-      run: |
-        docker compose -f docker-compose.integration.yml down -v
-        docker compose -f docker-compose.integration.yml up --build -d
-  
-    - name: Wait for app container to finish tests
-      run: |
-        # Ждём, пока контейнер app завершит выполнение (entrypoint запускает тесты)
-        docker wait $(docker compose -f docker-compose.integration.yml ps -q app)
-  
-    - name: Copy Allure report
-      run: |
-        mkdir -p ${{ github.workspace }}/PPO_f/build/reports/allure-report
-        docker cp $(docker compose -f docker-compose.integration.yml ps -q app):/app/PPO_f/build/reports/allure-report ${{ github.workspace }}/PPO_f/build/reports/allure-report
-  
-    - name: Tear down Docker Compose
-      run: docker compose -f docker-compose.integration.yml down -v
-  
     - name: Upload Allure HTML report
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: allure-report-integration
         path: PPO_f/build/reports/allure-report
-
 
