@@ -18,38 +18,43 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U testuser -d testdb" 
-          --health-interval 5s 
-          --health-timeout 5s 
+          --health-cmd "pg_isready -U testuser -d testdb"
+          --health-interval 5s
+          --health-timeout 5s
           --health-retries 10
 
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_DB: testdb
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Build Docker image for integration tests
-      run: docker build -t integration-tests-image -f ./Dockerfile.integration .
+      - name: Build Docker image for integration tests
+        run: docker build -t integration-tests-image -f ./Dockerfile.integration .
 
-    - name: Run integration tests and generate Allure report
-      run: |
-        mkdir -p ${{ github.workspace }}/PPO_f/build/allure-results
-        mkdir -p ${{ github.workspace }}/PPO_f/build/reports/allure-report
+      - name: Run integration tests and generate Allure report
+        run: |
+          mkdir -p ${{ github.workspace }}/PPO_f/build/allure-results
+          mkdir -p ${{ github.workspace }}/PPO_f/build/reports/allure-report
+          
+          docker run --rm \
+            -e POSTGRES_HOST=host.docker.internal \
+            -e POSTGRES_PORT=5432 \
+            -e POSTGRES_USER=testuser \
+            -e POSTGRES_PASSWORD=testpassword \
+            -e POSTGRES_DB=testdb \
+            -v ${{ github.workspace }}/PPO_f/build/allure-results:/app/PPO_f/build/allure-results \
+            -v ${{ github.workspace }}/PPO_f/build/reports/allure-report:/app/PPO_f/build/reports/allure-report \
+            integration-tests-image
 
-        docker run --rm \
-          --network host \
-          -e POSTGRES_HOST=localhost \
-          -e POSTGRES_PORT=5432 \
-          -e POSTGRES_USER=testuser \
-          -e POSTGRES_PASSWORD=testpassword \
-          -e POSTGRES_DB=testdb \
-          -v ${{ github.workspace }}/PPO_f/build/allure-results:/app/PPO_f/build/allure-results \
-          -v ${{ github.workspace }}/PPO_f/build/reports/allure-report:/app/PPO_f/build/reports/allure-report \
-          integration-tests-image
-
-    - name: Upload Allure HTML report
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: allure-report-integration
-        path: PPO_f/build/reports/allure-report
+      - name: Upload Allure HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-integration
+          path: PPO_f/build/reports/allure-report
 
