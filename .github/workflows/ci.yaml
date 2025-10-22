@@ -1,3 +1,4 @@
+
 name: Tests (Unit + Integration)
 
 on:
@@ -20,7 +21,6 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
-
     env:
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
@@ -43,17 +43,12 @@ jobs:
       - name: Run Gradle integration tests
         working-directory: PPO_f
         run: |
-          # Создаём папки отчётов в модуле app_cli
-          mkdir -p app_cli/build/allure-results
-          mkdir -p app_cli/build/reports/allure-report
-          # Запускаем тесты
+          mkdir -p build/allure-results
+          mkdir -p build/reports/allure-report
           ./gradlew :app_cli:test --stacktrace --info
-          # Генерируем Allure-отчёт
-          ./gradlew allureReport -Pallure.resultsDir=app_cli/build/allure-results --info
-
       - name: Upload Allure HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-report-integration
-          path: PPO_f/app_cli/build/reports/allure-report
+          path: PPO_f/build/reports/allure-report
