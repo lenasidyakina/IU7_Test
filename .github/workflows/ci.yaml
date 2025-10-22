@@ -31,5 +31,37 @@ jobs:
       with:
         name: allure-report
         path: PPO_f/build/reports/allure-report
-    
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+  
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+  
+    - name: Set up Docker Compose
+      run: |
+        docker compose -f docker-compose.integration.yml down -v
+        docker compose -f docker-compose.integration.yml up --build -d
+  
+    - name: Wait for app container to finish tests
+      run: |
+        # Ждём, пока контейнер app завершит выполнение (entrypoint запускает тесты)
+        docker wait $(docker compose -f docker-compose.integration.yml ps -q app)
+  
+    - name: Copy Allure report
+      run: |
+        mkdir -p ${{ github.workspace }}/PPO_f/build/reports/allure-report
+        docker cp $(docker compose -f docker-compose.integration.yml ps -q app):/app/PPO_f/build/reports/allure-report ${{ github.workspace }}/PPO_f/build/reports/allure-report
+  
+    - name: Tear down Docker Compose
+      run: docker compose -f docker-compose.integration.yml down -v
+  
+    - name: Upload Allure HTML report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: allure-report-integration
+        path: PPO_f/build/reports/allure-report
+
 
