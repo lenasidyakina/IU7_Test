@@ -43,12 +43,12 @@ jobs:
       - name: Run Gradle integration tests
         working-directory: PPO_f
         run: |
-          mkdir -p build/allure-results
-          mkdir -p build/reports/allure-report
+          mkdir -p app_cli/build/allure-results
+          mkdir -p app_cli/build/reports/allure-report
           ./gradlew :app_cli:test --stacktrace --info
       - name: Upload Allure HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-report-integration
-          path: PPO_f/build/reports/allure-report
+          path: PPO_f/app_cli/build/reports/allure-report
