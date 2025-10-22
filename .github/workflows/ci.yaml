@@ -46,9 +46,9 @@ jobs:
           mkdir -p app_cli/build/allure-results
           mkdir -p app_cli/build/reports/allure-report
           ./gradlew :app_cli:test --stacktrace --info
-          # Используем путь к результатам
-          ./gradlew :app_cli:allureReport -Pallure.resultsDir=app_cli/build/allure-results \
-            -Pallure.reportDir=app_cli/build/reports/allure-report
+          # Генерация Allure отчёта через Linux-бинарь
+          allure generate app_cli/build/allure-results -o app_cli/build/reports/allure-report --clean
+      
 
 
       - name: Upload Allure HTML report
