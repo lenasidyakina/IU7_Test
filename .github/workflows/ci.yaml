@@ -43,10 +43,14 @@ jobs:
       - name: Run Gradle integration tests
         working-directory: PPO_f
         run: |
+          # Создаём папки для результатов и отчёта
           mkdir -p app_cli/build/allure-results
           mkdir -p app_cli/build/reports/allure-report
+          # Запускаем тесты
           ./gradlew :app_cli:test --stacktrace --info
-          ./gradlew allureReport -D"allure.results.directory=app_cli/build/allure-results" 
+          # Генерируем Allure-отчёт через плагин Gradle
+          ./gradlew :app_cli:allureReport --stacktrace --info -Pallure.resultsDir=app_cli/build/allure-results
+
       - name: Upload Allure HTML report
         if: always()
         uses: actions/upload-artifact@v4
