@@ -2,21 +2,7 @@ FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y postgresql-client curl dos2unix && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && apt-get install -y curl tar
-
-RUN curl -fSL -o /tmp/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz \
-    && tar -zxvf /tmp/allure.tgz -C /opt/ \
-    && ln -s /opt/allure-2.27.0/bin/allure /usr/bin/allure \
-    && rm /tmp/allure.tgz
-
 COPY PPO_f /app/PPO_f
-COPY wait-for-postgres.sh /app/wait-for-postgres.sh
-
-RUN dos2unix /app/PPO_f/gradlew /app/wait-for-postgres.sh && \
-    chmod +x /app/PPO_f/gradlew /app/wait-for-postgres.sh
-
 WORKDIR /app/PPO_f
 
 ENV POSTGRES_HOST=postgres \
@@ -25,12 +11,6 @@ ENV POSTGRES_HOST=postgres \
     POSTGRES_PASSWORD=testpassword \
     POSTGRES_DB=testdb
 
-# ENTRYPOINT запускает ожидание БД (внутри скрипта уже есть запуск тестов)
-ENTRYPOINT ["bash", "-c", "\
-  /app/wait-for-postgres.sh && \
-  echo 'Generating Allure report...' && \
-  mkdir -p app_cli/build/reports/allure-report && \
-  allure generate app_cli/build/allure-results -o app_cli/build/reports/allure-report --clean && \
-  echo 'Allure report generated in app_cli/build/reports/allure-report' && \
-  ls -R app_cli/build/reports/allure-report \
-"]
+RUN ./gradlew build
+
+ENTRYPOINT ["./gradlew", ":app_cli:test"]
