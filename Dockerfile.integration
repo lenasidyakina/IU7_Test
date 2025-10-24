@@ -12,6 +12,4 @@ ENV POSTGRES_HOST=postgres \
     POSTGRES_DB=testdb
 
 
-ENTRYPOINT [""bash", "-c", "\
-  echo 'Running DB and BL tests...' && \
-  ./gradlew :app_cli:test--stacktrace --info"]
+ENTRYPOINT ["bash", "-c", "echo 'Running DB and BL tests...' && ./gradlew :app_cli:test --stacktrace --info"]
