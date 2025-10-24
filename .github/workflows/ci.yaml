@@ -27,10 +27,6 @@ jobs:
           # Запуск контейнеров (Postgres + тесты)
           docker compose -f docker-compose.integration.yml up --build --abort-on-container-exit
 
-          # Скопировать результаты из контейнера app в workflow
-          docker cp $(docker ps -aqf "name=IU7_Test_app_1"):/app/PPO_f/app_cli/build/allure-results PPO_f/app_cli/build/allure-results
-          docker cp $(docker ps -aqf "name=IU7_Test_app_1"):/app/PPO_f/app_cli/build/reports/allure-report PPO_f/app_cli/build/reports/allure-report
-
           # Остановить контейнеры
           docker compose -f docker-compose.integration.yml down -v
 
