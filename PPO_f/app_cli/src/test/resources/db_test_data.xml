@@ -1,0 +1,14 @@
+<dataset>
+<!--<users id="1" age="11" gender="true" name="user" password="test" role="admin"/>-->
+<!--<users id="2" age="20" gender="false" name="admin" password="password1" role="admin"/>-->
+<question id="0" is_extended="1" question="Do you love swimming or watching TV?"/>
+<question id="1" is_extended="0" question="How do you like to spend your time?"/>
+    <tag id="0" name="walking"/>
+    <tag id="1" name="watching TV"/>
+    <tag id="2" name="swimming"/>
+    <tag id="3" name="sleeping"/>
+    <question_tags question_id="0" tags_id="1"/>
+    <question_tags question_id="0" tags_id="2"/>
+    <question_tags question_id="1" tags_id="0"/>
+    <question_tags question_id="1" tags_id="3"/>
+</dataset>

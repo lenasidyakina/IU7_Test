@@ -1,0 +1,63 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'io.qameta.allure' version '2.11.2'
+}
+
+tasks.register("prepareKotlinBuildScriptModel"){}
+tasks.register('wrapper', Wrapper) {
+    gradleVersion = '7.2'
+}
+
+group = 'ru.bmstu.iu7'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
+}
+
+dependencies {
+    implementation platform("org.springframework.boot:spring-boot-dependencies:3.4.5")
+
+    implementation project(':BL')
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.postgresql:postgresql:42.7.2'
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.xerial:sqlite-jdbc:3.45.3.0'
+    implementation 'org.hibernate.orm:hibernate-community-dialects:6.6.13.Final'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    testImplementation 'io.qameta.allure:allure-junit5:2.25.0'
+}
+
+test {
+    useJUnitPlatform()
+
+    systemProperty "allure.results.directory", "$rootProject.buildDir/allure-results"
+    systemProperty "junit.jupiter.testmethod.order.default", "random"
+    systemProperty "junit.jupiter.testclass.order.default", "random"
+
+    testLogging {
+        events "PASSED", "FAILED", "SKIPPED"
+
+        showStandardStreams = false
+        exceptionFormat "short"
+    }
+}
+
+
+
+allure {
+    autoconfigure = true
+    version = '2.25.0'
+}

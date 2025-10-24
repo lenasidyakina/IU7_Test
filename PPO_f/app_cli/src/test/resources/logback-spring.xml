@@ -1,0 +1,15 @@
+<configuration>
+    <!-- Пишем только в файл -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>D:/Projects/PPO_f/PPO_f/ppo_f.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Корневой логгер пишет только в файл -->
+    <root level="INFO">
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>

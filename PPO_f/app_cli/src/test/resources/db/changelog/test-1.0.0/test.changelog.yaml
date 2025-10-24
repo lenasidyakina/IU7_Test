@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - include:
+      file: object/user.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/tags.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/question.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/question_tags.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/information.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/extended_answer.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/variant_answer.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/quest.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/quest_b_l.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/quest_f_l.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/extended_answer_tags.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/inform_variant_answer.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/inform_extended_answer.sql
+      relativeToChangelogFile: true
+  - include:
+      file: object/req_cache.sql
+      relativeToChangelogFile: true
+  #- include:
+  #    file: data/user-data.sql
+  #    relativeToChangelogFile: true
