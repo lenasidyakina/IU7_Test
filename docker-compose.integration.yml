@@ -19,6 +19,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.integration
+
     environment:
       SPRING_PROFILES_ACTIVE: test
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/testdb
@@ -28,6 +29,11 @@ services:
       POSTGRES_PORT: 5432
       POSTGRES_USER: testuser
       POSTGRES_PASSWORD: testpassword
+
     depends_on:
       postgres:
         condition: service_healthy
+
+    volumes:
+      - ./PPO_f/app_cli/build/allure-results:/app/PPO_f/build/allure-results
+      - ./PPO_f/app_cli/build/reports/allure-report:/app/PPO_f/build/reports/allure-report
