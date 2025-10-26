@@ -2,10 +2,11 @@ import unittest
 import os
 import psycopg2
 import time
-import pexpect
+import requests
 
-class TestE2E(unittest.TestCase):
-    JAR_PATH = "./PPO_f/app_cli/build/libs/app_cli-1.0-SNAPSHOT.jar"
+class TestE2E_API(unittest.TestCase):
+    BASE_URL = "http://localhost:8080/api/v1"  # эндпоинт твоего app_cli_server
+    JAR_PATH = "./PPO_f/app_cli_server/build/libs/app_cli_server-1.0-SNAPSHOT.jar"
 
     def setUp(self):
         # Параметры PostgreSQL
@@ -33,7 +34,7 @@ class TestE2E(unittest.TestCase):
         else:
             raise Exception("❌ Не удалось подключиться к PostgreSQL")
 
-        # Создаём таблицы и начальные данные
+        # Создаём таблицы и тестовые данные (как раньше)
         cur = self.conn.cursor()
         cur.execute("""
         CREATE TABLE IF NOT EXISTS tag (
@@ -81,134 +82,39 @@ class TestE2E(unittest.TestCase):
         self.conn.commit()
         cur.close()
 
-        # Переменные окружения для JAR
-        jdbc_url = f"jdbc:postgresql://{self.db_host}:{self.db_port}/{self.db_name}"
-        self.env = os.environ.copy()
-        self.env["SPRING_DATASOURCE_URL"] = jdbc_url
-        self.env["SPRING_DATASOURCE_USERNAME"] = self.db_user
-        self.env["SPRING_DATASOURCE_PASSWORD"] = self.db_pass
-
-        # Запуск JAR через pexpect (создаёт псевдоконсоль)
-        self.child = pexpect.spawn(
-            f'java -Dfile.encoding=UTF-8 -jar {self.JAR_PATH}',
-            env=self.env,
-            encoding='utf-8',
-            timeout=30
-        )
-        self.child.logfile = None
+        # Ждём, пока API поднимется
+        for i in range(20):
+            try:
+                r = requests.get(f"{self.BASE_URL}/users", timeout=2)
+                if r.status_code in (200, 404):
+                    print("✅ API доступен")
+                    break
+            except Exception:
+                print("⏳ Ждём API...")
+                time.sleep(3)
+        else:
+            raise Exception("❌ API не ответил")
 
     def tearDown(self):
-        if hasattr(self, "child") and self.child.isalive():
-            self.child.terminate(force=True)
         if hasattr(self, "conn"):
             self.conn.close()
 
-    def _wait_for(self, substr):
-        try:
-            self.child.expect(substr)
-        except pexpect.EOF:
-            raise AssertionError(f"Не дождались: '{substr}'\nВывод:\n{self.child.before}")
+    # --- 🔹 Пример: регистрация пользователя через API ---
+    def test_register_user(self):
+        user_data = {
+            "username": "user_api",
+            "password": "pass_api",
+            "age": 21,
+            "gender": True
+        }
 
-    def _write(self, text):
-        self.child.sendline(text)
+        response = requests.post(f"{self.BASE_URL}/register", json=user_data)
+        self.assertEqual(response.status_code, 200, msg=f"Ошибка регистрации: {response.text}")
 
-    def test_full_flow(self):
-        # 1. Регистрация user1
-        self._wait_for("1 - зарегистрироваться")
-        self._write("1")
-        self._wait_for("логин:")
-        self._write("user1")
-        self._wait_for("пароль:")
-        self._write("pass1")
-
-        # 2. Вход user1
-        self._wait_for("2 - войти")
-        self._write("2")
-        self._wait_for("логин:")
-        self._write("user1")
-        self._wait_for("пароль:")
-        self._write("pass1")
-
-        # 3. Создание анкеты user1
-        self._wait_for("1 - создать анкету")
-        self._write("1")
-        self._wait_for("Часть 1. Ответь на вопросы от своего лица.")
-        self._write("1")
-        self._wait_for("Введите вес этого вопроса")
-        self._write("5")
-        self._wait_for("How do you like to spend your time?")
-        self._write("I love walking.")
-        self._wait_for("Введите вес этого вопроса")
-        self._write("5")
-        self._wait_for("Часть 2. Ответь на вопросы от лица потенциального друга.")
-        self._write("2")
-        self._wait_for("Введите вес этого вопроса")
-        self._write("5")
-        self._wait_for("How do you like to spend your time?")
-        self._write("I love walking.")
-        self._wait_for("Введите вес этого вопроса")
-        self._write("5")
-        self._wait_for("Анкета успешно создана")
-
-        # 4. Выход user1
-        self._wait_for("1 - создать анкету")
-        self._write("2")  # выйти
-
-        # 5. Регистрация user2
-        self._wait_for("1 - зарегистрироваться")
-        self._write("1")
-        self._wait_for("логин:")
-        self._write("user2")
-        self._wait_for("пароль:")
-        self._write("pass2")
-
-        # 6. Вход user2
-        self._wait_for("2 - войти")
-        self._write("2")
-        self._wait_for("логин:")
-        self._write("user2")
-        self._wait_for("пароль:")
-        self._write("pass2")
-
-        # 7. Создание анкеты user2
-        self._wait_for("1 - создать анкету")
-        self._write("1")
-        self._wait_for("Часть 1. Ответь на вопросы от своего лица.")
-        self._write("1")
-        self._wait_for("Введите вес этого вопроса")
-        self._write("5")
-        self._wait_for("How do you like to spend your time?")
-        self._write("I love swimming.")
-        self._wait_for("Введите вес этого вопроса")
-        self._write("5")
-        self._wait_for("Часть 2. Ответь на вопросы от лица потенциального друга.")
-        self._write("2")
-        self._wait_for("Введите вес этого вопроса")
-        self._write("5")
-        self._wait_for("How do you like to spend your time?")
-        self._write("I love swimming.")
-        self._wait_for("Введите вес этого вопроса")
-        self._write("5")
-        self._wait_for("Анкета успешно создана")
-
-        # 8. Получение списка потенциальных друзей (для user2)
-        self._wait_for("1 - создать анкету")
-        self._write("3")
-        self._wait_for("Ваши потенциальные друзья:")
-
-        # 9. Добавление найденной анкеты в избранное
-        self._wait_for("1 - добавить в чёрный список")
-        self._write("2")
-        self._wait_for("Выберете номер анкеты:")
-        self._write("1")
-
-        # 10. Проверяем, что избранное отобразилось корректно
-        self._wait_for("1 - создать анкету")
-        self._write("4")
-        output = self._wait_for("user1")
-
-        print("E2E тест завершён успешно")
-
+        data = response.json()
+        self.assertIn("id", data)
+        self.assertEqual(data["name"], "user_api")
+        print(f"✅ Пользователь зарегистрирован: {data}")
 
 if __name__ == "__main__":
     unittest.main()

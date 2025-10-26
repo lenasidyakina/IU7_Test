@@ -89,4 +89,32 @@ public class UserRepository implements IUserRepository {
             return List.of();
         }
     }
+
+    @Override
+    public AUser saveUser(AUser user)  {
+        try {
+            User u = m_springUserRepository.save(ModelFactory.AUser2User(user));
+            logger.info("User saved with id: {}", u.getId());
+            return ModelFactory.User2AUser(u);
+        } catch (Exception e) {
+            logger.error("Failed to create user '{}': {}", user.getName(), e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public AUser findById(Long id) {
+        try {
+            logger.info("Fetching user with id {}", id);
+            return m_springUserRepository.findById(id)
+                    .map(ModelFactory::User2AUser)  // если найден, преобразуем
+                    .orElse(null);                   // если нет — возвращаем null
+        } catch (Exception e) {
+            logger.error("Failed to fetch user with id {}: {}", id, e.getMessage(), e);
+            return null;
+        }
+    }
+
+
+
 }

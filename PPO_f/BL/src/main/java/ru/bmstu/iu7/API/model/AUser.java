@@ -86,4 +86,7 @@ public class AUser
     public void setGender(boolean gender) {
         this.gender = gender;
     }
+    public void setRole(String role) {
+        this.role = role;
+    }
 }

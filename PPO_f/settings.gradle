@@ -16,4 +16,6 @@ include 'ML_stab'
 include 'DB_MongoDB'
 include 'DB_Oracle'
 include 'DB_SQLite'
+include 'app_cli_server'
+
 

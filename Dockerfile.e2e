@@ -14,7 +14,7 @@ RUN apt-get update && \
 COPY PPO_f /app/PPO_f
 
 # Копируем собранный JAR
-COPY build/libs/app_cli-1.0-SNAPSHOT.jar /app/build/libs/
+COPY build/libs/app_cli_server-1.0-SNAPSHOT.jar /app/build/libs/
 
 # По умолчанию запускаем Python тесты
 CMD ["python3", "-m", "unittest", "discover", "-s", "PPO_f", "-p", "main.py"]

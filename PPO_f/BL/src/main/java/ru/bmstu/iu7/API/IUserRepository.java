@@ -11,4 +11,6 @@ public interface IUserRepository {
     void delete(Long id) throws Exception;
     AUser update(AUser user) throws Exception;
     List<AUser> findAll();
+    AUser findById(Long id);
+    AUser saveUser(AUser user);
 }

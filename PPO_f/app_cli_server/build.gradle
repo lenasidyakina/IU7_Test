@@ -1,0 +1,229 @@
+////plugins {
+////    id 'java'
+////    id 'org.springframework.boot' version '3.4.5'
+////    id 'io.spring.dependency-management' version '1.1.7'
+////}
+////
+////group = 'ru.bmstu.iu7'
+////version = '1.0-SNAPSHOT'
+////
+////repositories {
+////    mavenCentral()
+////}
+////
+////dependencies {
+////    testImplementation platform('org.junit:junit-bom:5.10.0')
+////    testImplementation 'org.junit.jupiter:junit-jupiter'
+////    testImplementation 'org.springframework.boot:spring-boot-starter'
+////    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+////    testImplementation 'io.rest-assured:rest-assured'
+////    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+////   //// testImplementation 'org.testcontainers:postgresql'
+////    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+////
+////    implementation 'org.springframework.boot:spring-boot-starter-web'
+////
+////    implementation project(':BL')
+////    implementation project(':DB_Oracle')
+////    implementation project(':ML')
+////    //implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+////
+////    // тест БД
+////    //testImplementation "org.springframework.boot:spring-boot-starter-data-jdbc"
+////    //testImplementation "org.testcontainers:postgresql"
+////    //testImplementation "org.testcontainers:junit-jupiter"
+////    //testImplementation "org.dbunit:dbunit:3.0.0"
+////    //testImplementation "com.github.springtestdbunit:spring-test-dbunit:1.3.0"
+////    //testRuntimeOnly "org.liquibase:liquibase-core"
+////}
+////
+////test {
+////    useJUnitPlatform()
+////}
+////
+//////tasks.named('test') {
+////  //  enabled = false
+//////}
+////
+////tasks.withType(JavaExec) {
+////    // Для запуска через gradle bootRun
+////    standardInput = System.in
+////    jvmArgs = ["-Dfile.encoding=UTF-8"]
+////}
+//
+//plugins {
+//    id 'java'
+//    id 'org.springframework.boot' version '3.4.5'
+//    id 'io.spring.dependency-management' version '1.1.7'
+//}
+//
+//group = 'ru.bmstu.iu7'
+//version = '1.0-SNAPSHOT'
+//
+//repositories {
+//    mavenCentral()
+//}
+//
+//dependencies {
+//    // Spring Boot starters
+//    implementation 'org.springframework.boot:spring-boot-starter-web'
+//    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//
+//    implementation 'org.xerial:sqlite-jdbc:3.45.3.0'
+//    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//    implementation 'org.hibernate.orm:hibernate-community-dialects:6.6.13.Final'
+//
+//    // SQLite JDBC
+//    implementation 'org.xerial:sqlite-jdbc:3.42.0.0'
+//
+//    // Модули проекта
+//    implementation project(':BL')
+//    // implementation project(':DB_SQLite') // можно переименовать в DB_SQLite
+//    implementation project(':DB')
+//    implementation project(':ML')
+//
+//    // Тестирование
+//    testImplementation platform('org.junit:junit-bom:5.10.0')
+//    testImplementation 'org.junit.jupiter:junit-jupiter'
+//    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//    testImplementation 'io.rest-assured:rest-assured'
+//    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+//}
+//
+//test {
+//    useJUnitPlatform()
+//}
+//
+//tasks.withType(JavaExec) {
+//    standardInput = System.in
+//    jvmArgs = ["-Dfile.encoding=UTF-8"]
+//}
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'ru.bmstu.iu7'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // JUnit 5
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Allure JUnit5 + Platform
+    testImplementation 'io.qameta.allure:allure-junit5:2.25.0'
+    testImplementation 'io.qameta.allure:allure-junit-platform:2.25.0'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.springframework.boot:spring-boot-starter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.rest-assured:rest-assured'
+    // testImplementation 'org.testcontainers:postgresql'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    implementation project(':BL')
+    implementation project(':DB')
+    implementation project(':ML')
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // тест БД
+    testImplementation "org.springframework.boot:spring-boot-starter-data-jdbc"
+    testImplementation "org.testcontainers:postgresql"
+    testImplementation "org.testcontainers:junit-jupiter"
+    testImplementation "org.dbunit:dbunit:3.0.0"
+    testImplementation "com.github.springtestdbunit:spring-test-dbunit:1.3.0"
+    testRuntimeOnly "org.liquibase:liquibase-core"
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+
+    // Локальные модули
+    implementation project(':BL')
+    implementation project(':DB')
+    implementation project(':ML_stab')
+}
+
+// Папка для результатов Allure
+def allureResultsDir = "$buildDir/allure-results"
+def allureReportDir = "$buildDir/reports/allure-report"
+
+// Путь к Allure CLI (Windows)
+def allureCmd = "D:/tools/allure-2.35.1/bin/allure.bat"
+
+test {
+    useJUnitPlatform()
+    systemProperty "allure.results.directory", allureResultsDir
+
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+
+    // Удаляем старые результаты перед тестами
+    doFirst {
+        delete fileTree(allureResultsDir)
+    }
+
+    // После тестов формируем Allure report
+    finalizedBy("allureReport")
+}
+
+// Задача генерации отчёта
+tasks.register("allureReport") {
+    dependsOn "test"
+    doLast {
+        println "Generating Allure report..."
+        exec {
+            commandLine allureCmd, 'generate', allureResultsDir, '-o', allureReportDir, '--clean'
+        }
+        println "Allure report generated at: $allureReportDir"
+    }
+}
+
+// Открыть отчёт в браузере
+tasks.register("openAllure") {
+    dependsOn "allureReport"
+    doLast {
+        def indexFile = file("$allureReportDir/index.html")
+        if (!indexFile.exists()) {
+            throw new GradleException("Allure report not found! Run 'gradlew test' first.")
+        }
+        if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+            exec { commandLine "cmd", "/c", "start", indexFile }
+        } else {
+            exec { commandLine "xdg-open", indexFile }
+        }
+    }
+}
+
+tasks.withType(Copy).all { duplicatesStrategy 'exclude' }
+
+jar {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    manifest {
+        attributes 'Main-Class': 'ru.bmstu.iu7.Main'
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+
+
