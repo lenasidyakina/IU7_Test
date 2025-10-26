@@ -35,5 +35,4 @@ services:
         condition: service_healthy
 
     volumes:
-      - ./PPO_f/app_cli/build/allure-results:/app/PPO_f/build/allure-results
-      - ./PPO_f/app_cli/build/reports/allure-report:/app/PPO_f/build/reports/allure-report
+      - ./PPO_f/app_cli/build/allure-results:/app/PPO_f/app_cli/build/allure-results
