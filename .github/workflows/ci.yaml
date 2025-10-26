@@ -56,39 +56,40 @@ jobs:
     needs: [unit-tests, integration-tests]
     steps:
       - uses: actions/checkout@v4
-
+  
       # Скачиваем артефакты с результатами
-      - name: Download test results
+      - name: Download unit test results
         uses: actions/download-artifact@v4
         with:
           name: unit-results
           path: build/allure-results/unit
+  
       - name: Download integration test results
         uses: actions/download-artifact@v4
         with:
           name: integration-results
           path: build/allure-results/integration
-
+  
       # Объединяем в одну папку
       - name: Merge Allure results
         run: |
           mkdir -p build/allure-results/merged
-          cp -r build/allure-results/unit/* build/allure-results/merged/
-          cp -r build/allure-results/integration/* build/allure-results/merged/
-
-      # Устанавливаем Allure и генерируем отчёт
+          cp -r build/allure-results/unit/* build/allure-results/merged/ || true
+          cp -r build/allure-results/integration/* build/allure-results/merged/ || true
+  
+      # Скачиваем Allure и генерируем отчёт
       - name: Generate Allure report
         run: |
-          sudo apt-get update
-          sudo apt-get install -y curl tar
-          curl -fSL -o /tmp/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
-          tar -zxvf /tmp/allure.tgz -C /opt/
-          ln -s /opt/allure-2.27.0/bin/allure /usr/bin/allure
-          allure generate build/allure-results/merged -o build/reports/allure-report --clean
+          mkdir -p /tmp/allure
+          curl -fSL -o /tmp/allure/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -zxvf /tmp/allure/allure.tgz -C /tmp/allure
+          /tmp/allure/allure-2.27.0/bin/allure generate build/allure-results/merged -o build/reports/allure-report --clean
           ls -R build/reports/allure-report
-
+  
+      # Загружаем объединённый Allure report
       - name: Upload merged Allure report
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: build/reports/allure-report
+
