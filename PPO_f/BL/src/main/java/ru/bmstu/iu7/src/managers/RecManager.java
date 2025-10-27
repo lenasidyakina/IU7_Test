@@ -96,6 +96,7 @@ public class RecManager {
 
     public int information_comparison(AInformation self, AInformation other) {
         try {
+            if (logger != null) logger.info(":self {} other {}", self.getId(), other.getId());
             if (logger != null) logger.info("Comparing information between two questionnaires");
             List<AExtendedAnswer> ex_answer_1 = self.getExtendedAnswers();
             List<AExtendedAnswer> ex_answer_2 = other.getExtendedAnswers();

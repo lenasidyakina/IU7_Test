@@ -167,6 +167,7 @@ class TestE2E_API(unittest.TestCase):
 
         # 3️⃣ Создание анкеты первого пользователя
         questions_resp = requests.get(f"{self.BASE_URL}/questions").json()
+        print(questions_resp)
         quest_data1 = []
         for q in questions_resp:
             if q["isExtended"]:
