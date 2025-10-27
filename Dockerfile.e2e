@@ -4,7 +4,7 @@ FROM python:3.11-slim
 # Рабочая директория
 WORKDIR /app
 
-# Устанавливаем OpenJDK 21, curl, psycopg2 и необходимые инструменты
+# Устанавливаем OpenJDK 21, curl, gcc, psycopg2 и requests
 RUN apt-get update && \
     apt-get install -y openjdk-21-jdk curl gcc libpq-dev && \
     pip install --no-cache-dir psycopg2-binary requests && \
@@ -16,5 +16,17 @@ COPY PPO_f /app/PPO_f
 # Копируем собранный JAR
 COPY build/libs/app_cli_server-1.0-SNAPSHOT.jar /app/build/libs/
 
-# По умолчанию запускаем Python тесты
-CMD ["python3", "-m", "unittest", "discover", "-s", "PPO_f", "-p", "main.py"]
+# Открываем порт (на всякий случай)
+EXPOSE 8080
+
+# Запускаем Spring Boot сервер и ждём, пока он поднимется
+CMD java -Dspring.datasource.url="jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}" \
+         -Dspring.datasource.username=${POSTGRES_USER} \
+         -Dspring.datasource.password=${POSTGRES_PASSWORD} \
+         -jar /app/build/libs/app_cli_server-1.0-SNAPSHOT.jar & \
+    echo "⏳ Ждём API..." && \
+    for i in {1..30}; do \
+        curl -s http://localhost:8080/api/v1/users >/dev/null 2>&1 && echo "✅ API доступен" && break || echo "⏳ Ждём API..."; \
+        sleep 3; \
+    done && \
+    python3 -m unittest discover -s /app/PPO_f -p "main.py"
