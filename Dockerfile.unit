@@ -9,7 +9,6 @@ RUN curl -fSL -o /tmp/allure.tgz https://github.com/allure-framework/allure2/rel
     && ln -s /opt/allure-2.27.0/bin/allure /usr/bin/allure \
     && rm /tmp/allure.tgz
 
-# Копируем проект
 COPY PPO_f PPO_f
 RUN chmod +x PPO_f/gradlew
 

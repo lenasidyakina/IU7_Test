@@ -9,12 +9,10 @@ RUN curl -fSL -o /tmp/allure.tgz https://github.com/allure-framework/allure2/rel
     && ln -s /opt/allure-2.27.0/bin/allure /usr/bin/allure \
     && rm /tmp/allure.tgz
 
-# Копируем код
 COPY PPO_f /app/PPO_f
 
 WORKDIR /app/PPO_f
 
-# Устанавливаем права и исправляем переносы строк
 RUN apt-get update && apt-get install -y dos2unix && \
     dos2unix ./gradlew && \
     chmod +x ./gradlew
