@@ -170,7 +170,7 @@ class TestE2E_API(unittest.TestCase):
         print(questions_resp)
         quest_data1 = []
         for q in questions_resp:
-            if q["isExtended"]:
+            if q["is_extended"]:
                 quest_data1.append({"type": "EXT", "answer1": "answerA1", "weight1": 1,
                                     "answer2": "answerA2", "weight2": 1})
             else:
