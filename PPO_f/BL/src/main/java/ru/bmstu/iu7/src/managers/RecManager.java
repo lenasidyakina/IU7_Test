@@ -99,6 +99,8 @@ public class RecManager {
             if (logger != null) logger.info("Comparing information between two questionnaires");
             List<AExtendedAnswer> ex_answer_1 = self.getExtendedAnswers();
             List<AExtendedAnswer> ex_answer_2 = other.getExtendedAnswers();
+            if (logger != null) logger.info(":ex_answer_1 {}", ex_answer_1.size());
+            if (logger != null) logger.info(":ex_answer_2 {}", ex_answer_2.size());
 
             int similarity_ex_answer = 0;
             for (int i = 0; i < 1; i++) {
@@ -115,6 +117,8 @@ public class RecManager {
 
             List<AVariantAnswer> var_answer_1 = self.getVariantAnswers();
             List<AVariantAnswer> var_answer_2 = other.getVariantAnswers();
+            if (logger != null) logger.info(":var_answer_1 {}", var_answer_1.size());
+            if (logger != null) logger.info(":var_answer_2 {}", var_answer_2.size());
 
             int similarity_var_answer = 0;
             for (int i = 0; i < 1; i++) {
