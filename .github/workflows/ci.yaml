@@ -31,11 +31,10 @@ jobs:
           unzip awscliv2.zip
           sudo ./aws/install --update
           aws s3 sync s3://${S3_BUCKET}/latest/history ./build/allure-results/merged/history
-          allure --verbose generate -c ./backend/allure-results -o ./backend/allure-report
-          echo "https://${S3_BUCKET}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/latest"          
           /tmp/allure/allure-2.27.0/bin/allure generate build/allure-results/merged -o build/reports/allure-report --clean
           ls -R build/reports/allure-report
           aws s3 sync build/reports/allure-report s3://${S3_BUCKET}/latest
+          echo "https://${S3_BUCKET}/latest"
   
       # Загружаем объединённый Allure report
       - name: Upload merged Allure report
