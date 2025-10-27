@@ -7,13 +7,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import ru.bmstu.iu7.API.AppLogger;
-import ru.bmstu.iu7.API.model.AQuestionnaire;
-import ru.bmstu.iu7.API.model.AUser;
+import ru.bmstu.iu7.API.model.*;
 import ru.bmstu.iu7.impl.*;
 import ru.bmstu.iu7.src.MainManager;
 import ru.bmstu.iu7.src.controllers.ReqCacheController;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 @SpringBootApplication
 @Component
@@ -65,5 +65,17 @@ public class Main {
                 logger
         );
         currentUser = null;
+        logger.info("Filling the database with initial data...");
+        ATag walking_tag = mainManager.getM_que_manager().append_tag("walking");
+        ATag watching_tag = mainManager.getM_que_manager().append_tag("watching TV");
+        ATag swimming_tag = mainManager.getM_que_manager().append_tag("swimming");
+        ATag sleeping_tag = mainManager.getM_que_manager().append_tag("sleeping");
+
+        AQuestion q_1 = mainManager.getM_que_manager().append_question(false,
+                "Do you love swimming or watching TV?", new ArrayList<>(Arrays.asList(watching_tag, swimming_tag)));
+        AQuestion q_2 = mainManager.getM_que_manager().append_question(true,
+                "How do you like to spend your time?", new ArrayList<>(Arrays.asList(walking_tag, sleeping_tag)));
+
+        logger.info("Required data added to the database");
     }
 }
