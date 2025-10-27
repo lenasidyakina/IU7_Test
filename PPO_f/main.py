@@ -5,11 +5,9 @@ import time
 import requests
 
 class TestE2E_API(unittest.TestCase):
-    BASE_URL = "http://localhost:9099/api/v1"  # эндпоинт твоего app_cli_server
-    JAR_PATH = "./PPO_f/app_cli_server/build/libs/app_cli_server-1.0-SNAPSHOT.jar"
+    BASE_URL = "http://localhost:9099/api/v1"
 
     def setUp(self):
-        # Параметры PostgreSQL
         self.db_host = os.getenv("POSTGRES_HOST", "postgres")
         self.db_port = os.getenv("POSTGRES_PORT", "5432")
         self.db_user = os.getenv("POSTGRES_USER", "testuser")
@@ -81,57 +79,6 @@ class TestE2E_API(unittest.TestCase):
         """)
         self.conn.commit()
         cur.close()
-
-        # Ждём, пока API поднимется
-        for i in range(20):
-            try:
-                r = requests.get(f"{self.BASE_URL}/users", timeout=2)
-                if r.status_code in (200, 404):
-                    print("✅ API доступен")
-                    break
-            except Exception:
-                print("⏳ Ждём API...")
-                time.sleep(3)
-        else:
-            raise Exception("❌ API не ответил")
-
-    def tearDown(self):
-        if hasattr(self, "conn"):
-            self.conn.close()
-
-import unittest
-import os
-import psycopg2
-import time
-import requests
-
-class TestE2E_API(unittest.TestCase):
-    BASE_URL = "http://localhost:9099/api/v1"
-
-    def setUp(self):
-        self.db_host = os.getenv("POSTGRES_HOST", "postgres")
-        self.db_port = os.getenv("POSTGRES_PORT", "5432")
-        self.db_user = os.getenv("POSTGRES_USER", "testuser")
-        self.db_pass = os.getenv("POSTGRES_PASSWORD", "testpassword")
-        self.db_name = os.getenv("POSTGRES_DB", "testdb")
-
-        # Ждём PostgreSQL
-        for _ in range(20):
-            try:
-                self.conn = psycopg2.connect(
-                    host=self.db_host,
-                    port=self.db_port,
-                    user=self.db_user,
-                    password=self.db_pass,
-                    database=self.db_name
-                )
-                print("✅ PostgreSQL доступен")
-                break
-            except Exception:
-                print("⏳ Ждём PostgreSQL...")
-                time.sleep(3)
-        else:
-            raise Exception("❌ Не удалось подключиться к PostgreSQL")
 
         # Ждём API
         for _ in range(20):
