@@ -5,7 +5,7 @@ import time
 import requests
 
 class TestE2E_API(unittest.TestCase):
-    BASE_URL = "http://localhost:8080/api/v1"  # эндпоинт твоего app_cli_server
+    BASE_URL = "http://localhost:9099/api/v1"  # эндпоинт твоего app_cli_server
     JAR_PATH = "./PPO_f/app_cli_server/build/libs/app_cli_server-1.0-SNAPSHOT.jar"
 
     def setUp(self):
