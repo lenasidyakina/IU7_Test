@@ -176,7 +176,7 @@ jobs:
           export AWS_ENDPOINT_URL=https://storage.yandexcloud.net
           export S3_BUCKET=friendshiper.ru
           export AWS_ACCESS_KEY_ID=YCAJEbKNMUNliLhKiwzWD6biP
-          export AWS_SECRET_ACCESS_KEY=YCNFSE6lo2Hl8pmtg-sGnC4bBnQ8hCDLllZCvkG5
+          export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
           mkdir -p /tmp/allure
           curl -fSL -o /tmp/allure/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
           tar -zxvf /tmp/allure/allure.tgz -C /tmp/allure
