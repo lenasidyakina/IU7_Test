@@ -41,7 +41,7 @@ jobs:
         run: |
           mkdir -p build/allure-results
           docker compose -f docker-compose.integration.yml down -v
-          docker compose -f docker-compose.integration.yml up --build --abort-on-container-exit || true
+          docker compose -f docker-compose.integration.yml up --build --abort-on-container-exit
           docker compose -f docker-compose.integration.yml down -v
 
       - name: Upload integration test results
