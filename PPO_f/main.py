@@ -173,8 +173,8 @@ class TestE2E_API(unittest.TestCase):
                 quest_data1.append({"type": "EXT", "answer1": "answerA1", "weight1": 1,
                                     "answer2": "answerA2", "weight2": 1})
             else:
-                quest_data1.append({"type": "VAR", "answer1": "walking", "weight1": 1,
-                                    "answer2": "sleeping", "weight2": 1})
+                quest_data1.append({"type": "VAR", "answer1": "swimming", "weight1": 1,
+                                    "answer2": "swimming", "weight2": 1})
 
         headers1 = {"Authorization": f"Bearer {token1}"}
         resp_quest1 = requests.post(f"{self.BASE_URL}/quest", json=quest_data1, headers=headers1)
