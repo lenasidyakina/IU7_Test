@@ -102,19 +102,6 @@ public class RecManager {
             if (logger != null) logger.info(":ex_answer_1 {}", ex_answer_1.size());
             if (logger != null) logger.info(":ex_answer_2 {}", ex_answer_2.size());
 
-            int similarity_ex_answer = 0;
-            for (int i = 0; i < 1; i++) {
-                int totalMatches = 0;
-                Set<ATag> tagsSet = new HashSet<>(ex_answer_1.get(i).getTags());
-                for (ATag tag : ex_answer_2.get(i).getTags()) {
-                    if (tagsSet.contains(tag)) {
-                        totalMatches++;
-                        tagsSet.remove(tag);
-                    }
-                }
-                similarity_ex_answer += totalMatches * ex_answer_1.get(i).getWeight();
-            }
-
             List<AVariantAnswer> var_answer_1 = self.getVariantAnswers();
             List<AVariantAnswer> var_answer_2 = other.getVariantAnswers();
             if (logger != null) logger.info(":var_answer_1 {}", var_answer_1.size());
@@ -127,6 +114,19 @@ public class RecManager {
                 if (tag1 != null && tag1.equals(tag2)) {
                     similarity_var_answer += var_answer_1.get(i).getWeight();
                 }
+            }
+
+            int similarity_ex_answer = 0;
+            for (int i = 0; i < 1; i++) {
+                int totalMatches = 0;
+                Set<ATag> tagsSet = new HashSet<>(ex_answer_1.get(i).getTags());
+                for (ATag tag : ex_answer_2.get(i).getTags()) {
+                    if (tagsSet.contains(tag)) {
+                        totalMatches++;
+                        tagsSet.remove(tag);
+                    }
+                }
+                similarity_ex_answer += totalMatches * ex_answer_1.get(i).getWeight();
             }
 
             int total_similarity = similarity_ex_answer + similarity_var_answer;
