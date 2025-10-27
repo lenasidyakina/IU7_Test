@@ -5,9 +5,51 @@ on:
     branches: [ main, lab2 ]
 
 jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image for unit tests
+        run: docker build -t unit-tests-image -f ./Dockerfile.unit .
+
+      - name: Run unit tests
+        run: |
+          mkdir -p build/allure-results
+          docker run --rm \
+            -v ${{ github.workspace }}/build/allure-results:/app/PPO_f/build/allure-results \
+            unit-tests-image
+      - name: Upload unit test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-results
+          path: build/allure-results
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+      - name: Run integration tests
+        run: |
+          mkdir -p build/allure-results
+          docker compose -f docker-compose.integration.yml down -v
+          docker compose -f docker-compose.integration.yml up --build --abort-on-container-exit
+          docker compose -f docker-compose.integration.yml down -v
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-results
+          path: PPO_f/app_cli/build/allure-results
+
   e2e-tests:
     runs-on: ubuntu-latest
-
+    needs: [unit-tests, integration-tests]
     services:
       postgres:
         image: postgres:15
@@ -23,10 +65,9 @@ jobs:
           --health-timeout=5s
           --health-retries=5
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up JDK 21 for build
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
           java-version: '21'
@@ -38,15 +79,18 @@ jobs:
           chmod +x gradlew
           ./gradlew :app_cli_server:build -x test
           ls -l app_cli_server/build/libs
+
       - name: Copy JAR for Docker build
         run: |
           mkdir -p build/libs
           cp PPO_f/app_cli_server/build/libs/app_cli_server-1.0-SNAPSHOT.jar build/libs/
+
       - name: Build Docker image for E2E tests
         run: docker build -t e2e-test-image -f Dockerfile.e2e .
 
       - name: Run E2E tests inside Docker
         run: |
+          mkdir -p build/allure-results
           docker run --rm \
             --network host \
             -e POSTGRES_HOST=localhost \
@@ -54,5 +98,73 @@ jobs:
             -e POSTGRES_USER=testuser \
             -e POSTGRES_PASSWORD=testpassword \
             -e POSTGRES_DB=testdb \
+            -v ${{ github.workspace }}/build/allure-results:/app/PPO_f/build/allure-results \
             e2e-test-image
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results
+          path: build/allure-results
+
+  generate-allure-report:
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests]
+    steps:
+      - uses: actions/checkout@v4
+
+        # Скачиваем артефакты с результатами
+      - name: Download unit test results
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-results
+          path: build/allure-results/unit
+
+      - name: Download integration test results
+        uses: actions/download-artifact@v4
+        with:
+          name: integration-results
+          path: build/allure-results/integration
+
+      - name: Download e2e test results
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-results
+          path: build/allure-results/e2e
+
+      # Объединяем в одну папку
+      - name: Merge Allure results
+        run: |
+          mkdir -p build/allure-results/merged
+          cp -r build/allure-results/unit/* build/allure-results/merged/ || true
+          cp -r build/allure-results/integration/* build/allure-results/merged/ || true
+          cp -r build/allure-results/e2e/* build/allure-results/merged/ || true
+
+
+      # Скачиваем Allure и генерируем отчёт
+      - name: Generate Allure report
+        run: |
+          export AWS_DEFAULT_REGION=ru-centrall
+          export AWS_ENDPOINT_URL=https://storage.yandexcloud.net
+          export S3_BUCKET=friendshiper.ru
+          export AWS_ACCESS_KEY_ID=YCAJEbKNMUNliLhKiwzWD6biP
+          export AWS_SECRET_ACCESS_KEY=YCNFSE6lo2Hl8pmtg-sGnC4bBnQ8hCDLllZCvkG5
+          mkdir -p /tmp/allure
+          curl -fSL -o /tmp/allure/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -zxvf /tmp/allure/allure.tgz -C /tmp/allure
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install --update
+          aws s3 sync s3://${S3_BUCKET}/latest/history ./build/allure-results/merged/history
+          /tmp/allure/allure-2.27.0/bin/allure generate build/allure-results/merged -o build/reports/allure-report --clean
+          ls -R build/reports/allure-report
+          aws s3 sync build/reports/allure-report s3://${S3_BUCKET}/latest
+          echo "https://${S3_BUCKET}/latest"
+
+      # Загружаем объединённый Allure report
+      - name: Upload merged Allure report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: build/reports/allure-report
 
