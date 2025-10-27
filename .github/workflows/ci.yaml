@@ -29,7 +29,7 @@ jobs:
 
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
-          ./aws/install --update
+          sudo ./aws/install --update
           aws s3 sync s3://${S3_BUCKET}/latest/history ./build/allure-results/merged/history
           allure --verbose generate -c ./backend/allure-results -o ./backend/allure-report
           echo "https://${S3_BUCKET}/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}/latest"          
