@@ -15,7 +15,7 @@ WORKDIR /app/PPO_f
 
 RUN apt-get update && apt-get install -y dos2unix && \
     dos2unix ./gradlew && \
-    chmod +x ./gradlew
+    chmod +x ./gradleww
 
 ENV POSTGRES_HOST=postgres \
     POSTGRES_PORT=5432 \
