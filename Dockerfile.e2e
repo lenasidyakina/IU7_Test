@@ -26,7 +26,7 @@ CMD java -Dspring.datasource.url="jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_
          -jar /app/build/libs/app_cli_server-1.0-SNAPSHOT.jar & \
     echo "⏳ Ждём API..." && \
     for i in {1..30}; do \
-        curl -s http://localhost:8080/api/v1/users >/dev/null 2>&1 && echo "✅ API доступен" && break || echo "⏳ Ждём API..."; \
+        curl -s http://localhost:9099/api/v1/users >/dev/null 2>&1 && echo "✅ API доступен" && break || echo "⏳ Ждём API..."; \
         sleep 3; \
     done && \
     python3 -m unittest discover -s /app/PPO_f -p "main.py"
