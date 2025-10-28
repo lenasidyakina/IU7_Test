@@ -1,0 +1,25 @@
+FROM eclipse-temurin:21-jdk
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y curl tar
+
+RUN curl -fSL -o /tmp/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz \
+    && tar -zxvf /tmp/allure.tgz -C /opt/ \
+    && ln -s /opt/allure-2.27.0/bin/allure /usr/bin/allure \
+    && rm /tmp/allure.tgz
+
+COPY PPO_f PPO_f
+RUN chmod +x PPO_f/gradlew
+
+WORKDIR /app/PPO_f
+
+ENTRYPOINT ["bash", "-c", "\
+  echo 'Running DB and BL tests...' && \
+  ./gradlew :DB:test :BL:test --stacktrace --info && \
+  echo 'Generating Allure report...' && \
+  allure generate build/allure-results -o build/reports/allure-report --clean && \
+  echo 'Allure report generated in build/reports/allure-report' && \
+  ls -R build/reports/allure-report \
+"]
+

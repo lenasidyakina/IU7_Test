@@ -1,0 +1,509 @@
+openapi: 3.0.3
+info:
+  title: LabService API
+  version: 1.0.0
+  description: Полное REST API для системы LabService
+servers:
+  - url: http://localhost:9099
+paths:
+  /users:
+    get:
+      summary: Получить всех пользователей
+      operationId: getUsers
+      responses:
+        '200':
+          description: Список всех пользователей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserFull'
+    post:
+      summary: Создать нового пользователя
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserFull'
+  /users/{id}:
+    get:
+      summary: Получить пользователя по ID
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Пользователь найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserFull'
+        '404':
+          description: Пользователь не найден
+    put:
+      summary: Полное обновление пользователя
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '200':
+          description: Пользователь обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserFull'
+        '404':
+          description: Пользователь не найден
+    patch:
+      summary: Частичное обновление пользователя
+      operationId: patchUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPatch'
+      responses:
+        '200':
+          description: Пользователь частично обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserFull'
+        '404':
+          description: Пользователь не найден
+    delete:
+      summary: Удалить пользователя по ID
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Пользователь удалён
+
+
+  /users/{id}/clearquests:
+    delete:
+      summary: Удалить все анкеты пользователя
+      operationId: deleteAllUserQuests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Анкеты пользователя удалены
+
+  /register:
+    post:
+      summary: Регистрация нового пользователя
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '200':
+          description: Пользователь зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserFull'
+        '500':
+          description: Ошибка регистрации
+  /login:
+    post:
+      summary: Авторизация пользователя
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                password:
+                  type: string
+              required:
+                - name
+                - password
+      responses:
+        '200':
+          description: Пользователь авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserFull'
+        '401':
+          description: Ошибка авторизации
+  /logout:
+    get:
+      summary: Выход пользователя
+      operationId: logoutUser
+      responses:
+        '200':
+          description: Пользователь вышел
+
+
+  /quests:
+    post:
+      summary: Создать анкету пользователя
+      operationId: createQuest
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Анкета создана
+
+    get:
+      summary: Получить анкеты текущего пользователя
+      operationId: getUserQuests
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Список анкет
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestionnaireFull'
+
+  /quests/{id}/friends:
+    get:
+      summary: Получить список друзей
+      operationId: getFriends
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Список друзей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestionnaireFull'
+
+  /quests/{id}:
+    delete:
+      summary: Удалить анкету (Admin)
+      operationId: deleteQuestionnaire
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Анкета удалена
+        '500':
+          description: Не удалось удалить анкету
+  /quests/{id}/censor:
+    post:
+      summary: Пометить анкету цензурированной (Censor)
+      operationId: censorQuestionnaire
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Анкета цензурирована
+        '500':
+          description: Не удалось цензурировать анкету
+  /quests/{id}/fav/{friendId}:
+    post:
+      summary: Добавить пользователя в избранное
+      operationId: addFav
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: friendId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Добавлено в избранное
+        '500':
+          description: Ошибка добавления в избранное
+    delete:
+      summary: Удалить пользователя из избранного
+      operationId: delFav
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: friendId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Удалено из избранного
+        '500':
+          description: Ошибка удаления из избранного
+
+  /quests/{id}/black/{friendId}:
+    post:
+      summary: Добавить пользователя в черный список
+      operationId: addBlack
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: friendId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Добавлено в черный список
+        '500':
+          description: Ошибка добавления в черный список
+
+    delete:
+      summary: Удалить пользователя из черного списка
+      operationId: delBlack
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: friendId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Удалено из черного списка
+        '500':
+          description: Ошибка удаления из черного списка
+
+
+  /quests/{id}/activate:
+    post:
+      summary: Установить анкету как активную
+      operationId: setActiveQuestionnaire
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Анкета установлена как активная
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionnaireFull'
+        '400':
+          description: Ошибка установки активной анкеты
+
+
+  /questions:
+    get:
+      summary: Получить все вопросы
+      operationId: getQuestions
+      responses:
+        '200':
+          description: Список всех вопросов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestionFull'
+
+components:
+  schemas:
+    UserFull:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        password:
+          type: string
+        age:
+          type: integer
+        gender:
+          type: boolean
+    UserInput:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        age:
+          type: integer
+        gender:
+          type: boolean
+      required:
+        - username
+        - password
+        - age
+        - gender
+    UserPatch:
+      type: object
+      properties:
+        name:
+          type: string
+        password:
+          type: string
+        age:
+          type: integer
+        gender:
+          type: boolean
+    QuestionFull:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+    TagFull:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    VariantAnswerFull:
+      type: object
+      properties:
+        id:
+          type: integer
+        weight:
+          type: integer
+        tag:
+          $ref: '#/components/schemas/TagFull'
+        question:
+          $ref: '#/components/schemas/QuestionFull'
+    ExtendedAnswerFull:
+      type: object
+      properties:
+        id:
+          type: integer
+        question:
+          $ref: '#/components/schemas/QuestionFull'
+        weight:
+          type: integer
+        answer:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagFull'
+    InformationFull:
+      type: object
+      properties:
+        variantAnswers:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariantAnswerFull'
+        extendedAnswers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtendedAnswerFull'
+    QuestionnaireFull:
+      type: object
+      properties:
+        id:
+          type: integer
+        user:
+          $ref: '#/components/schemas/UserFull'
+        blackList:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              user:
+                $ref: '#/components/schemas/UserFull'
+        favList:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              user:
+                $ref: '#/components/schemas/UserFull'
+        information:
+          $ref: '#/components/schemas/InformationFull'
+        searchInformation:
+          $ref: '#/components/schemas/InformationFull'

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/PPO_f" />
+        <option name="gradleJvm" value="23 (2)" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/PPO_f" />
+            <option value="$PROJECT_DIR$/PPO_f/BL" />
+            <option value="$PROJECT_DIR$/PPO_f/DB" />
+            <option value="$PROJECT_DIR$/PPO_f/DB_MongoDB" />
+            <option value="$PROJECT_DIR$/PPO_f/DB_Oracle" />
+            <option value="$PROJECT_DIR$/PPO_f/DB_SQLite" />
+            <option value="$PROJECT_DIR$/PPO_f/ML" />
+            <option value="$PROJECT_DIR$/PPO_f/ML_stab" />
+            <option value="$PROJECT_DIR$/PPO_f/app_cli" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/PPO_f/app_cli_server" />
+        <option name="gradleHome" value="" />
+        <option name="gradleJvm" value="23 (2)" />
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

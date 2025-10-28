@@ -1,0 +1,21 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+    }
+}
+
+rootProject.name = 'PPO_f'
+include 'BL'
+include 'DB'
+include 'ML'
+include 'app_cli'
+include 'ML_stab'
+include 'DB_MongoDB'
+include 'DB_Oracle'
+include 'DB_SQLite'
+include 'app_cli_server'
+
+
