@@ -21,6 +21,8 @@ CMD java -Dspring.datasource.url="jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_
         curl -s http://localhost:9099/api/v1/users >/dev/null 2>&1 && echo "API доступен" && break || echo "Ждём API..."; \
         sleep 3; \
     done && \
+    echo "Инициализируем базу данных..." && \
+    python /app/PPO_f/init_db.py && \
     mkdir -p /app/PPO_f/build/allure-results && \
     pytest -v --alluredir=/app/PPO_f/build/allure-results /app/PPO_f/main.py && \
     echo 'Allure results generated in /app/PPO_f/build/allure-results'
