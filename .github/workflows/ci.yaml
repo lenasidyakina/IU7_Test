@@ -15,11 +15,17 @@ jobs:
 
       - name: Run unit tests
         run: |
+          set -e
           mkdir -p build/allure-results
           docker run --rm \
             -v ${{ github.workspace }}/build/allure-results:/app/PPO_f/build/allure-results \
-            unit-tests-image
+            unit-tests-image || {
+              echo "Unit tests failed"
+              exit 1
+            }
+
       - name: Upload unit test results
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: unit-results
@@ -39,12 +45,19 @@ jobs:
 
       - name: Run integration tests
         run: |
+          set -e
           mkdir -p build/allure-results
-          docker compose -f docker-compose.integration.yml down -v
-          docker compose -f docker-compose.integration.yml up --build --abort-on-container-exit
+          docker compose -f docker-compose.integration.yml down -v || true
+          docker compose -f docker-compose.integration.yml up --build --abort-on-container-exit || {
+            echo "Integration tests failed"
+            docker compose -f docker-compose.integration.yml logs
+            docker compose -f docker-compose.integration.yml down -v || true
+            exit 1
+          }
           docker compose -f docker-compose.integration.yml down -v
 
       - name: Upload integration test results
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: integration-results
@@ -86,10 +99,10 @@ jobs:
 
       - name: Build JAR for E2E
         run: |
+          set -e
           cd PPO_f
           chmod +x gradlew
           ./gradlew :app_cli_server:build -x test
-          ls -l app_cli_server/build/libs
 
       - name: Copy JAR for Docker build
         run: |
@@ -101,6 +114,7 @@ jobs:
 
       - name: Run E2E tests inside Docker
         run: |
+          set -e
           mkdir -p build/allure-results
           docker run --rm \
             --network host \
@@ -110,9 +124,13 @@ jobs:
             -e POSTGRES_PASSWORD=testpassword \
             -e POSTGRES_DB=testdb \
             -v ${{ github.workspace }}/build/allure-results:/app/PPO_f/build/allure-results \
-            e2e-test-image
+            e2e-test-image || {
+              echo "E2E tests failed"
+              exit 1
+            }
 
       - name: Upload E2E test results
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: e2e-results
@@ -125,6 +143,7 @@ jobs:
           docker stop $(docker ps -q --filter "ancestor=postgres:15") || true
           docker rm $(docker ps -aq --filter "ancestor=postgres:15") || true
           docker volume prune -f || true
+
 
   generate-allure-report:
     runs-on: ubuntu-latest
