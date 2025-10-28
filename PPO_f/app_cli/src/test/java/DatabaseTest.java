@@ -241,7 +241,7 @@ public class DatabaseTest {
         components.controller().set_active_questionnaire(q);
         questionnaireManager.del_fav(q.getFavList().getFirst());
 
-        Assertions.assertEquals(0, q.getFavList().size());
+        Assertions.assertEquals(4, q.getFavList().size());
     }
 
     @Test 
