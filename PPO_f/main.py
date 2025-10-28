@@ -31,52 +31,6 @@ class TestE2E_API(unittest.TestCase):
         else:
             raise Exception("Не удалось подключиться к PostgreSQL")
 
-        cur = self.conn.cursor()
-        cur.execute("""
-        CREATE TABLE IF NOT EXISTS tag (
-            id BIGSERIAL PRIMARY KEY,
-            name TEXT UNIQUE
-        );
-        CREATE TABLE IF NOT EXISTS question (
-            id BIGSERIAL PRIMARY KEY,
-            is_extended BOOLEAN NOT NULL,
-            question TEXT
-        );
-        CREATE TABLE IF NOT EXISTS question_tags (
-            question_id BIGINT NOT NULL REFERENCES question(id) ON DELETE CASCADE,
-            tags_id BIGINT NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
-            UNIQUE (question_id, tags_id)
-        );
-        DROP TABLE IF EXISTS extended_answer_tags CASCADE;
-        CREATE TABLE extended_answer_tags (
-            extended_answer_id BIGINT,
-            tags_id BIGINT
-        );
-        """)
-        tags = ['walking', 'watching TV', 'swimming', 'sleeping']
-        for t in tags:
-            cur.execute("INSERT INTO tag (name) VALUES (%s) ON CONFLICT (name) DO NOTHING;", (t,))
-        cur.execute("""
-        INSERT INTO question (question, is_extended)
-        VALUES
-            ('Do you love swimming or watching TV?', FALSE),
-            ('How do you like to spend your time?', TRUE)
-        ON CONFLICT DO NOTHING;
-        """)
-        cur.execute("""
-        INSERT INTO question_tags (question_id, tags_id)
-        SELECT q.id, t.id
-        FROM question q, tag t
-        WHERE (q.question, t.name) IN (
-            ('Do you love swimming or watching TV?', 'watching TV'),
-            ('Do you love swimming or watching TV?', 'swimming'),
-            ('How do you like to spend your time?', 'walking'),
-            ('How do you like to spend your time?', 'sleeping')
-        )
-        ON CONFLICT DO NOTHING;
-        """)
-        self.conn.commit()
-        cur.close()
 
         # Ждём API
         for _ in range(20):
