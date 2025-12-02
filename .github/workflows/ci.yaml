@@ -23,6 +23,16 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+      ml:
+        image: ghcr.io/ollama-webui/ollama-webui:main
+        ports:
+          - 11434:11434
+        options: >-
+          --health-cmd="curl -s http://localhost:11434/api/version || exit 1"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=20
+
     steps:
       - uses: actions/checkout@v4
 
