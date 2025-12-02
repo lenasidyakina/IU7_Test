@@ -1,13 +1,14 @@
 name: Tests (Unit + Integration)
 
 on:
+  push:
+    branches: [ new-branch ]
   pull_request:
     branches: [ main, new-branch ]
 
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
-    if: ${{ success() }}
     services:
       postgres:
         image: postgres:15
