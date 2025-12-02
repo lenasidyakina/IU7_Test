@@ -58,7 +58,7 @@ public class Main {
         dataRepository = new QuestionnaireRepository(api);
 
         mainManager = new MainManager(
-                new ML_stab_port(olamaHost),
+                new ML_port(olamaHost),
                 userRepository,
                 dataRepository,
                 reqCacheRepository,

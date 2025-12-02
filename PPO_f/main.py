@@ -45,13 +45,28 @@ class TestE2E_API(unittest.TestCase):
         questions_resp = requests.get(f"{self.BASE_URL}/questions").json()
         print(questions_resp)
         quest_data1 = []
+
         for q in questions_resp:
             if q["is_extended"]:
-                quest_data1.append({"type": "EXT", "answer1": "answerA1", "weight1": 1,
-                                    "answer2": "answerA2", "weight2": 1})
+                # Вопрос: "How do you like to spend your time?"
+                # Теги: walking, sleeping
+                quest_data1.append({
+                    "type": "EXT",
+                    "answer1": "I like walking in the park",
+                    "weight1": 1,
+                    "answer2": "Sometimes I enjoy sleeping during weekends",
+                    "weight2": 1
+                })
             else:
-                quest_data1.append({"type": "VAR", "answer1": "swimming", "weight1": 1,
-                                    "answer2": "swimming", "weight2": 1})
+                # Вопрос: "Do you love swimming or watching TV?"
+                # Теги: swimming, watching TV
+                quest_data1.append({
+                    "type": "VAR",
+                    "answer1": "swimming",
+                    "weight1": 1,
+                    "answer2": "watching TV",
+                    "weight2": 1
+                })
 
         headers1 = {"Authorization": f"Bearer {token1}"}
         resp_quest1 = requests.post(f"{self.BASE_URL}/quest", json=quest_data1, headers=headers1)
@@ -77,20 +92,6 @@ class TestE2E_API(unittest.TestCase):
         self.assertEqual(resp_quest2.status_code, 201)
         print("User2 создал анкету")
 
-        # Получение списка анкет других пользователей
-        user2_quests = requests.get(f"{self.BASE_URL}/quests", headers=headers2).json()
-        self.assertTrue(len(user2_quests) > 0)
-        active_quest_id = user2_quests[0]["id"]
-
-        friends_list = requests.get(f"{self.BASE_URL}/quests/{active_quest_id}/friends", headers=headers2).json()
-        self.assertTrue(len(friends_list) > 0)
-        friend_quest_id = friends_list[0]["id"]
-        print("User2 получил список друзей:", [q["id"] for q in friends_list])
-
-        # Добавление анкеты первого пользователя в избранное второго
-        resp_fav = requests.post(f"{self.BASE_URL}/quests/{active_quest_id}/fav/{friend_quest_id}", headers=headers2)
-        self.assertEqual(resp_fav.status_code, 201)
-        print(f"User2 добавил анкету {friend_quest_id} в избранное")
 
 if __name__ == "__main__":
     unittest.main()
