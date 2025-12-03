@@ -45,6 +45,18 @@ jobs:
           mkdir -p build/libs
           cp PPO_f/app_cli_server/build/libs/app_cli_server-1.0-SNAPSHOT.jar build/libs/
 
+      - name: Start Mock Ollama ML service
+        run: |
+          docker build -t mock-ollama -f PPO_f/Dockerfile.mock .
+          docker run -d -p 5000:5000 --name mock-ollama mock-ollama
+
+          # Ждём, пока сервис будет доступен
+          for i in {1..30}; do
+            curl -s http://localhost:5000/api/generate && echo "Mock Ollama доступна" && break
+            echo "Ждём Mock Ollama..."
+            sleep 3
+          done
+
       - name: Start Ollama ML service
         run: |
           echo "Запускаем Ollama..."
