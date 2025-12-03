@@ -47,7 +47,7 @@ jobs:
 
       - name: Start Mock Ollama ML service
         run: |
-          docker build -t mock-ollama -f PPO_f/Dockerfile.mock .
+          docker build -t mock-ollama -f Dockerfile.mock .
           docker run -d -p 5000:5000 --name mock-ollama mock-ollama
 
           # Ждём, пока сервис будет доступен
