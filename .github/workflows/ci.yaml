@@ -49,12 +49,20 @@ jobs:
         run: |
           echo "Запускаем Ollama..."
           docker run -d -p 11434:11434 --name ollama ollama/ollama:latest
+          
           # Ждём, пока сервис будет доступен
           for i in {1..30}; do
             curl -s http://localhost:11434/api/version && echo "Ollama доступна" && break
             echo "Ждём Ollama..."
             sleep 3
           done
+          
+          # Загружаем модель gemma3:4b-it-qat
+          echo "Подтягиваем модель gemma3:4b-it-qat..."
+          docker exec ollama ollama pull gemma3:4b-it-qat
+          
+          echo "ML сервис готов к использованию"
+
 
       - name: Build Docker image for E2E tests
         run: docker build -t e2e-test-image -f Dockerfile.e2e .
