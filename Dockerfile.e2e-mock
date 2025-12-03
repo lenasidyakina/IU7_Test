@@ -1,0 +1,33 @@
+# Dockerfile.e2e-mock
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Устанавливаем всё необходимое: JDK 21, curl, gcc, PostgreSQL dev libs, Python deps
+RUN apt-get update && \
+    apt-get install -y openjdk-21-jdk curl gcc libpq-dev && \
+    pip install --no-cache-dir psycopg2-binary requests allure-pytest allure-python-commons flask && \
+    rm -rf /var/lib/apt/lists/*
+
+# Копируем код и jar
+COPY PPO_f /app/PPO_f
+COPY build/libs/app_cli_server-1.0-SNAPSHOT.jar /app/build/libs/
+
+EXPOSE 8080 5000
+
+# Команда запуска: Java приложение + инициализация базы + pytest
+CMD java -Dspring.profiles.active=test \
+         -Dspring.datasource.url="jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}" \
+         -Dspring.datasource.username=${POSTGRES_USER} \
+         -Dspring.datasource.password=${POSTGRES_PASSWORD} \
+         -jar /app/build/libs/app_cli_server-1.0-SNAPSHOT.jar & \
+    echo "Ждём API..." && \
+    for i in {1..30}; do \
+        curl -s http://localhost:9099/api/v1/users >/dev/null 2>&1 && echo "API доступен" && break || echo "Ждём API..."; \
+        sleep 3; \
+    done && \
+    echo "Инициализируем базу данных..." && \
+    python /app/PPO_f/init_db.py && \
+    mkdir -p /app/PPO_f/build/allure-results && \
+    pytest -v --alluredir=/app/PPO_f/build/allure-results /app/PPO_f/main.py && \
+    echo 'Allure results generated in /app/PPO_f/build/allure-results'
