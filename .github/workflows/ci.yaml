@@ -23,16 +23,6 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-      ml:
-        image: ollama/ollama:latest
-        ports:
-          - 11434:11434
-        options: >-
-          --health-cmd="curl -s http://localhost:11434/api/version || exit 1"
-          --health-interval=5s
-          --health-timeout=3s
-          --health-retries=20
-
 
     steps:
       - uses: actions/checkout@v4
@@ -55,6 +45,17 @@ jobs:
           mkdir -p build/libs
           cp PPO_f/app_cli_server/build/libs/app_cli_server-1.0-SNAPSHOT.jar build/libs/
 
+      - name: Start Ollama ML service
+        run: |
+          echo "Запускаем Ollama..."
+          docker run -d -p 11434:11434 --name ollama ollama/ollama:latest
+          # Ждём, пока сервис будет доступен
+          for i in {1..30}; do
+            curl -s http://localhost:11434/api/version && echo "Ollama доступна" && break
+            echo "Ждём Ollama..."
+            sleep 3
+          done
+
       - name: Build Docker image for E2E tests
         run: docker build -t e2e-test-image -f Dockerfile.e2e .
 
@@ -69,11 +70,18 @@ jobs:
             -e POSTGRES_USER=testuser \
             -e POSTGRES_PASSWORD=testpassword \
             -e POSTGRES_DB=testdb \
+            -e ML_API_URL=http://localhost:11434/api/generate \
             -v ${{ github.workspace }}/build/allure-results:/app/PPO_f/build/allure-results \
             e2e-test-image || {
               echo "E2E tests failed"
               exit 1
             }
+
+      - name: Stop Ollama ML service
+        if: always()
+        run: |
+          docker stop ollama || true
+          docker rm ollama || true
 
       - name: Rollback DB if e2e failed
         if: ${{ failure() }}
@@ -82,4 +90,3 @@ jobs:
           docker stop $(docker ps -q --filter "ancestor=postgres:15") || true
           docker rm $(docker ps -aq --filter "ancestor=postgres:15") || true
           docker volume prune -f || true
-
