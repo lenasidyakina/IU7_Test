@@ -24,7 +24,7 @@ jobs:
           --health-timeout=5s
           --health-retries=5
       ml:
-        image: ghcr.io/ollama-webui/ollama-webui:main
+        image: ollama/ollama:latest
         ports:
           - 11434:11434
         options: >-
@@ -32,6 +32,7 @@ jobs:
           --health-interval=5s
           --health-timeout=3s
           --health-retries=20
+
 
     steps:
       - uses: actions/checkout@v4
