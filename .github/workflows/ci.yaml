@@ -42,11 +42,10 @@ jobs:
         ports:
           - 9000:9000
         options: >-
-          --health-cmd="exit 0"  # отключаем дефолтный healthcheck
+          --health-cmd="exit 0"
     steps:
       - uses: actions/checkout@v4
 
-      # Ждем, пока SonarQube станет доступен
       - name: Wait for SonarQube
         run: |
           echo "Waiting for SonarQube to be ready..."
