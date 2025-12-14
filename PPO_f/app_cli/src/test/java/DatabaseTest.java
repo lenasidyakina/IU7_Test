@@ -190,7 +190,7 @@ public class DatabaseTest {
         List<AQuestionnaire> friends = questionnaireController.get_quest_in_cache();
 
 
-        Assertions.assertEquals("LenaFriendd", friends.get(0)().getUser().getName());
+        Assertions.assertEquals("LenaFriendd", friends.get(0).getUser().getName());
     }
 
     @Test
@@ -217,13 +217,13 @@ public class DatabaseTest {
         questionnaireController.set_active_questionnaire(q1);
         reqManager.doGetFriends();
 
-        AQuestionnaire friend = questionnaireController.get_quest_in_cache().get(0)();
+        AQuestionnaire friend = questionnaireController.get_quest_in_cache().get(0);
         questionnaireManager.add_fav(friend);
         reqManager.doGetFriends();
 
         List<AQuestionnaire> updatedFriends = questionnaireController.get_quest_in_cache();
         Assertions.assertEquals(1, updatedFriends.size());
-        Assertions.assertEquals(q1.getFavList().get(0)().getId(), friend.getId());
+        Assertions.assertEquals(q1.getFavList().get(0).getId(), friend.getId());
     }
 
     @Test
@@ -236,10 +236,10 @@ public class DatabaseTest {
         UserManager userManager = buildUserManager(xuserRepository);
 
         AUser user = userManager.authorize("LenaFav", "12345");
-        AQuestionnaire q = questionnaireManager.get_user_questionnaies(user.getId()).get(0)();
+        AQuestionnaire q = questionnaireManager.get_user_questionnaies(user.getId()).get(0);
 
         components.controller().set_active_questionnaire(q);
-        questionnaireManager.del_fav(q.getFavList().get(0)());
+        questionnaireManager.del_fav(q.getFavList().get(0));
 
         Assertions.assertEquals(0, q.getFavList().size());
     }
