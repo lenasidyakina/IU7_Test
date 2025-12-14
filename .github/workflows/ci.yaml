@@ -2,7 +2,7 @@ name: Tests (Unit + Integration)
 
 on:
   pull_request:
-    branches: [ main, lab2 ]
+    branches: [ main, lab6 ]
 
 jobs:
   codestyle:
