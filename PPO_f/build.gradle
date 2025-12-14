@@ -100,6 +100,44 @@ sonarqube {
     }
 }
 
+
+import groovy.json.JsonSlurper
+
+task checkQualityGate {
+    dependsOn 'sonarqube'
+
+    doLast {
+        def projectKey = 'PPO_f'
+        def token = 'sqp_79c9690919aba5e92b23e8d080287d2e3ae8f7f0'
+        def url = "http://localhost:9000/api/qualitygates/project_status?projectKey=${projectKey}"
+        def authHeader = "Basic " + "$token:".bytes.encodeBase64().toString()
+
+        // Ждём, чтобы SonarQube успел завершить анализ
+        println "Waiting 30 seconds for SonarQube to finish analysis..."
+        sleep(30000) // 30 секунд
+
+        def status
+        try {
+            def response = new JsonSlurper().parse(new URL(url).openConnection().with {
+                setRequestProperty("Authorization", authHeader)
+                inputStream
+            })
+            status = response.projectStatus.status
+        } catch (Exception e) {
+            throw new GradleException("Failed to get Quality Gate status: ${e.message}")
+        }
+
+        println "Quality Gate status: $status"
+        if (status != 'OK') {
+            throw new GradleException("Quality Gate failed! Stop the build.")
+        }
+    }
+}
+
+
+
+
+
 subprojects {
     apply plugin: 'checkstyle'
 
