@@ -7,7 +7,6 @@ on:
     branches: [ main, lab6 ]
 
 jobs:
-
   build-and-analyze:
     runs-on: ubuntu-latest
 
@@ -38,10 +37,18 @@ jobs:
           sleep 5
         done
 
+    # 🔹 ВАЖНО: создаём токен ДЛЯ ЭТОГО контейнера
+    - name: Generate SonarQube token
+      run: |
+        TOKEN=$(curl -s -u admin:admin \
+          -X POST "http://localhost:9000/api/user_tokens/generate?name=ci-token" \
+          | jq -r .token)
+        echo "SONAR_TOKEN=$TOKEN" >> $GITHUB_ENV
+
     - name: Import SonarQube Quality Profile
       run: |
         for i in {1..5}; do
-          curl -sSf -u "sqp_79c9690919aba5e92b23e8d080287d2e3ae8f7f0:" \
+          curl -sSf -u "$SONAR_TOKEN:" \
                -X POST \
                -F "file=@PPO_f/ci/sonarqube-config/AllRulesDisabled.zip" \
                http://localhost:9000/api/qualityprofiles/restore && break || echo "Retrying..."
@@ -60,8 +67,7 @@ jobs:
       run: |
         ./gradlew sonarqube \
           -Dsonar.host.url=http://localhost:9000 \
-          -Dsonar.login=admin
+          -Dsonar.login=$SONAR_TOKEN
 
     - name: Run tests
       run: ./gradlew test
-
