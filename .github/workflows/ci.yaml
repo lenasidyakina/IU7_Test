@@ -25,13 +25,13 @@ jobs:
             exit 1
           }
 
-
       - name: Upload CodeStyle logs
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: codestyle-logs
-          path: ''
+          path: PPO_f/build/codestyle-results
+
 #
 #  unit-tests:
 #    runs-on: ubuntu-latest
