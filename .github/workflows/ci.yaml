@@ -1,6 +1,8 @@
 name: Tests (Unit + Integration)
 
 on:
+  push:
+    branches: [ lab6 ]
   pull_request:
     branches: [ main, lab6 ]
 
