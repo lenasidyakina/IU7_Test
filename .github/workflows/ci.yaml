@@ -34,72 +34,40 @@ jobs:
   #         name: codestyle-logs
   #         path: PPO_f/build/codestyle-results/output.log
 
-  check-quality-gate:
+  build-and-analyze:
     runs-on: ubuntu-latest
+
     services:
       sonarqube:
-        image: sonarqube:9.9-community
+        image: sonarqube:latest
         ports:
           - 9000:9000
         options: >-
-          --health-cmd="exit 0"
+          --health-cmd="curl -f http://localhost:9000 || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Wait for SonarQube
-        run: |
-          echo "Waiting for SonarQube to be ready..."
-          for i in {1..60}; do
-            status=$(curl -sSf http://localhost:9000/api/system/health || echo "")
-            if [[ "$status" == *"UP"* ]]; then
-              echo "SonarQube is UP"
-              break
-            fi
-            echo "Not ready yet... waiting 5s"
-            sleep 5
-          done
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
 
-      # Импортируем профиль качества
-      - name: Import SonarQube Quality Profile
-        run: |
-          for i in {1..5}; do
-            curl -sSf -u "sqp_79c9690919aba5e92b23e8d080287d2e3ae8f7f0:" \
-                 -X POST \
-                 -F "file=@ci/sonarqube-config/AllRulesDisabled.zip" \
-                 http://localhost:9000/api/qualityprofiles/restore && break || echo "Retrying..."
-            sleep 5
-          done
+    - name: Build project
+      run: ./gradlew build
 
-      # Импортируем Quality Gate
-      - name: Import SonarQube Quality Gate
-        run: |
-          for i in {1..5}; do
-            curl -sSf -u "sqp_79c9690919aba5e92b23e8d080287d2e3ae8f7f0:" \
-                 -X POST \
-                 -H "Content-Type: application/json" \
-                 -d @ci/sonarqube-config/S1541_Only_gate.json \
-                 http://localhost:9000/api/qualitygates/create && break || echo "Gate may already exist, retrying..."
-            sleep 5
-          done
+    - name: SonarQube Analysis
+      run: |
+        ./gradlew sonarqube \
+          -Dsonar.host.url=http://localhost:9000 \
+          -Dsonar.login=admin
 
-      # Запускаем Gradle анализ и проверку Quality Gate
-      - name: Run Gradle SonarQube analysis
-        run: |
-          cd PPO_f
-          chmod +x gradlew
-          mkdir -p build/checkQualityGate-results
-          touch build/checkQualityGate-results/output.log
-          
-          ./gradlew clean sonarqube >> build/checkQualityGate-results/output.log 2>&1 || true
-          ./gradlew checkQualityGate >> build/checkQualityGate-results/output.log 2>&1 || exit 1
-
-      # Загружаем лог
-      - name: Upload Quality Gate logs
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: checkQualityGate-logs
-          path: PPO_f/build/checkQualityGate-results/output.log
+    - name: Run tests
+      run: ./gradlew test
 
 
 #
