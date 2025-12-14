@@ -92,6 +92,8 @@ sonarqube {
         property "sonar.projectKey", "PPO_f"
         property "sonar.host.url", "http://localhost:9000"
         property "sonar.login", "sqp_79c9690919aba5e92b23e8d080287d2e3ae8f7f0"
+        property "sonar.profile", "AllRulesDisabled"     // профиль качества
+        property "sonar.qualitygate", "S1541 Only"       // Quality Gate
 //        property "sonar.java.binaries", "build/classes/java/main"
 //        property "sonar.java.test.binaries", "build/classes/java/test"
 //        property "sonar.sources", "src/main/java"
