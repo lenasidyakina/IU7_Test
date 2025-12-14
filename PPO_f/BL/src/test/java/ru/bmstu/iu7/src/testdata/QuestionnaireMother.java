@@ -8,7 +8,8 @@ import java.util.List;
 
 public class QuestionnaireMother {
 
-    private static AInformation buildAInformationWithUserAnswer(long infoId, String userAnswerText, List<ATag> answerTags) {
+    private static AInformation buildAInformationWithUserAnswer(long infoId, String userAnswerText,
+                                                                List<ATag> answerTags) {
         AInformation info = QuestionnaireBuilder.buildAInformationTemplate();
         info.setId(infoId);
 

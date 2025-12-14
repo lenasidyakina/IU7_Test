@@ -47,7 +47,7 @@ class RecManagerTest {
     }
 
     @Test
-    void getFriends_positive(){
+    void getFriends_positive() {
         AQuestionnaire other = QuestionnaireMother.iraQuestionnaire();
         cache.add(other);
 

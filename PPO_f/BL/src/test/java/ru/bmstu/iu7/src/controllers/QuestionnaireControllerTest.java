@@ -293,7 +293,7 @@ class QuestionnaireControllerTest {
 
 
         @Override
-        public List<AQuestionnaire> get_all_questionnaires() {return userQuestions;}
+        public List<AQuestionnaire> get_all_questionnaires() { return userQuestions; }
 
         @Override
         public List<AQuestionnaire> findUserQuestionnaires(Long id) {
@@ -342,7 +342,8 @@ class QuestionnaireControllerTest {
         }
 
         @Override
-        public List<AQuestionnaire> get_page(int no, int size, Long user_id) { return List.of(QuestionnaireMother.lenaQuestionnaire()); }
+        public List<AQuestionnaire> get_page(int no, int size, Long user_id)
+        { return List.of(QuestionnaireMother.lenaQuestionnaire()); }
     }
 
     static class FakeReqCacheRepository implements IReqCacheRepository {

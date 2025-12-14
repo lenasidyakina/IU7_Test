@@ -91,7 +91,9 @@ public class DatabaseTest {
     private record QuestionnaireComponents(
             QuestionnaireManager manager,
             QuestionnaireController controller
-    ) {}
+    ) {
+
+    }
 
     private QuestionnaireComponents buildQuestionnaireComponents(DBAPI api) {
         var xquestRepository = new QuestionnaireRepository(api);
@@ -107,7 +109,8 @@ public class DatabaseTest {
         return new UserManager(repo);
     }
 
-    private AInformation createInformation(QuestionnaireManager questionnaireManager, String shortAnswer, String longAnswer) {
+    private AInformation createInformation(QuestionnaireManager questionnaireManager,
+                                           String shortAnswer, String longAnswer) {
         List<AVariantAnswer> variantAnswers = new ArrayList<>();
         List<AExtendedAnswer> extendedAnswers = new ArrayList<>();
 

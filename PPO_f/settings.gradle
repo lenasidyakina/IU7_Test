@@ -14,5 +14,5 @@ include 'ML'
 include 'app_cli'
 include 'ML_stab'
 include 'app_cli_server'
-
+include 'metrics-analyzer'
 

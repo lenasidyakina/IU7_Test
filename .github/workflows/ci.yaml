@@ -1,3 +1,4 @@
+
 name: Tests (Unit + Integration)
 
 on:
@@ -7,67 +8,56 @@ on:
     branches: [ main, lab6 ]
 
 jobs:
-  build-and-analyze:
+  codestyle:
     runs-on: ubuntu-latest
-
-    services:
-      sonarqube:
-        image: sonarqube:latest
-        ports:
-          - 9000:9000
-        options: >-
-          --health-cmd="curl -f http://localhost:9000 || exit 1"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-
+    outputs:
+      passed: ${{ steps.check.outputs.passed }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-    - name: Wait for SonarQube
-      run: |
-        echo "Waiting for SonarQube to be ready..."
-        for i in {1..20}; do
-          if curl -s http://localhost:9000/api/system/status | grep -q "UP"; then
-            echo "SonarQube is up!"
-            break
-          fi
-          echo "Waiting 5s..."
-          sleep 5
-        done
+      - name: Run CodeStyle checks
+        id: check
+        run: |
+          cd PPO_f
+          chmod +x gradlew
+          mkdir -p build/codestyle-results
+          touch build/codestyle-results/output.log
+          
+          ./gradlew clean checkstyleAll >> build/codestyle-results/output.log 2>&1 || {
+            echo "Code style checks failed" >> build/codestyle-results/output.log
+            exit 1
+          }
 
-    # 🔹 ВАЖНО: создаём токен ДЛЯ ЭТОГО контейнера
-    - name: Generate SonarQube token
-      run: |
-        TOKEN=$(curl -s -u admin:admin \
-          -X POST "http://localhost:9000/api/user_tokens/generate?name=ci-token" \
-          | jq -r .token)
-        echo "SONAR_TOKEN=$TOKEN" >> $GITHUB_ENV
+      - name: Upload CodeStyle logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codestyle-logs
+          path: PPO_f/build/codestyle-results/output.log
 
-    - name: Import SonarQube Quality Profile
-      run: |
-        for i in {1..5}; do
-          curl -sSf -u "$SONAR_TOKEN:" \
-               -X POST \
-               -F "file=@PPO_f/ci/sonarqube-config/AllRulesDisabled.zip" \
-               http://localhost:9000/api/qualityprofiles/restore && break || echo "Retrying..."
-          sleep 5
-        done
+  cc-check:
+    runs-on: ubuntu-latest
+    outputs:
+      passed: ${{ steps.check.outputs.passed }}
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Set up Java
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
+      - name: Run Cyclomatic Complexity checks
+        id: check
+        run: |
+          cd PPO_f
+          chmod +x gradlew
+          mkdir -p build/cccheck-results
+          touch build/cccheck-results/output.log
+          
+          ./gradlew clean :metrics-analyzer:run  >> build/cccheck-results/output.log 2>&1 || {
+            echo "Code style checks failed" >> build/cccheck-results/output.log
+            exit 1
+          }
 
-    - name: Build project
-      run: ./gradlew build
-
-    - name: SonarQube Analysis
-      run: |
-        ./gradlew sonarqube \
-          -Dsonar.host.url=http://localhost:9000 \
-          -Dsonar.login=$SONAR_TOKEN
-
-    - name: Run tests
-      run: ./gradlew test
+      - name: Upload CodeStyle logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cccheck-logs
+          path: PPO_f/build/cccheck-results/output.log

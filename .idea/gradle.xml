@@ -11,13 +11,11 @@
             <option value="$PROJECT_DIR$/PPO_f" />
             <option value="$PROJECT_DIR$/PPO_f/BL" />
             <option value="$PROJECT_DIR$/PPO_f/DB" />
-            <option value="$PROJECT_DIR$/PPO_f/DB_MongoDB" />
-            <option value="$PROJECT_DIR$/PPO_f/DB_Oracle" />
-            <option value="$PROJECT_DIR$/PPO_f/DB_SQLite" />
             <option value="$PROJECT_DIR$/PPO_f/ML" />
             <option value="$PROJECT_DIR$/PPO_f/ML_stab" />
             <option value="$PROJECT_DIR$/PPO_f/app_cli" />
             <option value="$PROJECT_DIR$/PPO_f/app_cli_server" />
+            <option value="$PROJECT_DIR$/PPO_f/metrics-analyzer" />
           </set>
         </option>
       </GradleProjectSettings>
