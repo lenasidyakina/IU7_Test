@@ -14,19 +14,19 @@ jobs:
       passed: ${{ steps.check.outputs.passed }}
     steps:
       - uses: actions/checkout@v4
-        
+      
       - name: Run CodeStyle checks
         id: check
         run: |
-          cd PPO_f && \
-          chmod +x gradlew && \
-          mkdir -p build/codestyle-results && \
-          OUTPUT_LOG=build/codestyle-results/output.log && \
-          touch $OUTPUT_LOG && \
-          ./gradlew clean checkstyleAll >> $OUTPUT_LOG 2>&1 || { echo "Code style checks failed" >> $OUTPUT_LOG; exit 1; }
-
-
-
+          cd PPO_f
+          chmod +x gradlew
+          mkdir -p build/codestyle-results
+          touch build/codestyle-results/output.log
+      
+          ./gradlew checkstyleAll >> build/codestyle-results/output.log 2>&1 || {
+            echo "Code style checks failed" >> build/codestyle-results/output.log
+            exit 1
+          }
 
       - name: Upload CodeStyle logs
         if: failure()
@@ -34,6 +34,7 @@ jobs:
         with:
           name: codestyle-logs
           path: PPO_f/build/codestyle-results/output.log
+
 
   cc-check:
     runs-on: ubuntu-latest
