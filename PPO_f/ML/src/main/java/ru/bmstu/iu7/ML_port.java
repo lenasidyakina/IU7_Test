@@ -114,8 +114,7 @@ public class ML_port implements IML_port {
                 "  \"prompt\": \"" +
                 "Given the question: " + question +
                 " Here is the answer: " + answer +
-                " Available tags: " + tags_name_list +
-                " Extract at least two tags from the answer and respond only with the tags, separated by commas.\"\n" +
+                " Available tags: " + tags_name_list + " Extract at least two tags from the answer and respond only with the tags, separated by commas.\"\n" +
                 "}";
 
 
