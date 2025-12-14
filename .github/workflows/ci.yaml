@@ -14,7 +14,7 @@ jobs:
       passed: ${{ steps.check.outputs.passed }}
     steps:
       - uses: actions/checkout@v4
-      
+        
       - name: Run CodeStyle checks
         id: check
         run: |
@@ -24,6 +24,7 @@ jobs:
           OUTPUT_LOG=build/codestyle-results/output.log && \
           touch $OUTPUT_LOG && \
           ./gradlew clean checkstyleAll >> $OUTPUT_LOG 2>&1 || { echo "Code style checks failed" >> $OUTPUT_LOG; exit 1; }
+
 
 
 
