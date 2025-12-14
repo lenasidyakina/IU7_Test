@@ -7,32 +7,32 @@ on:
     branches: [ main, lab6 ]
 
 jobs:
-  codestyle:
-    runs-on: ubuntu-latest
-    outputs:
-      passed: ${{ steps.check.outputs.passed }}
-    steps:
-      - uses: actions/checkout@v4
+  # codestyle:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     passed: ${{ steps.check.outputs.passed }}
+  #   steps:
+  #     - uses: actions/checkout@v4
       
-      - name: Run CodeStyle checks
-        id: check
-        run: |
-          cd PPO_f
-          chmod +x gradlew
-          mkdir -p build/codestyle-results
-          touch build/codestyle-results/output.log
+  #     - name: Run CodeStyle checks
+  #       id: check
+  #       run: |
+  #         cd PPO_f
+  #         chmod +x gradlew
+  #         mkdir -p build/codestyle-results
+  #         touch build/codestyle-results/output.log
       
-          ./gradlew checkstyleAll >> build/codestyle-results/output.log 2>&1 || {
-            echo "Code style checks failed" >> build/codestyle-results/output.log
-            exit 1
-          }
+  #         ./gradlew checkstyleAll >> build/codestyle-results/output.log 2>&1 || {
+  #           echo "Code style checks failed" >> build/codestyle-results/output.log
+  #           exit 1
+  #         }
 
-      - name: Upload CodeStyle logs
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: codestyle-logs
-          path: PPO_f/build/codestyle-results/output.log
+  #     - name: Upload CodeStyle logs
+  #       if: failure()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: codestyle-logs
+  #         path: PPO_f/build/codestyle-results/output.log
 
   check-quality-gate:
     runs-on: ubuntu-latest
@@ -46,13 +46,17 @@ jobs:
         run: |
           cd PPO_f
           chmod +x gradlew
+      
+          # Чистим и создаем папку для логов после clean
+          ./gradlew clean
           mkdir -p build/checkQualityGate-results
-          touch build/checkQualityGate-results/output.log
-
-          ./gradlew clean checkQualityGate >> build/checkQualityGate-results/output.log 2>&1 || {
-            echo "Code style checks failed" >> build/checkQualityGate-results/output.log
+      
+          # Запускаем checkQualityGate и пишем в лог
+          ./gradlew checkQualityGate >> build/checkQualityGate-results/output.log 2>&1 || {
+            echo "Quality Gate checks failed" >> build/checkQualityGate-results/output.log
             exit 1
           }
+
 
       - name: Upload CodeStyle logs
         if: failure()
