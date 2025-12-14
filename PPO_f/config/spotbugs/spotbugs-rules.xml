@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- ================= Unused code ================= -->
+    <Match>
+        <Bug pattern="UUF_UNUSED_FIELD"/>
+    </Match>
+    <Match>
+        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
+    </Match>
+    <Match>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+    <Match>
+        <Bug pattern="UUC_UNCALLABLE_METHOD"/>
+    </Match>
+
+    <!-- ================= Cyclomatic/Method Complexity ================= -->
+    <!-- Методы с большой сложностью -->
+    <Match>
+        <Bug pattern="CYCLOMATIC_COMPLEXITY"/>
+        <Priority>2</Priority> <!-- High priority -->
+    </Match>
+
+    <!-- ================= Halstead Complexity ================= -->
+    <!-- SpotBugs напрямую не считает Halstead, но можно использовать LongMethod -->
+    <Match>
+        <Bug pattern="NM_METHOD_TOO_COMPLEX"/>
+        <Priority>2</Priority>
+    </Match>
+
+    <!-- ================= Unused imports (через DMI) ================= -->
+    <Match>
+        <Bug pattern="DMI_UNUSED_FIELD"/>
+    </Match>
+</FindBugsFilter>

@@ -15,13 +15,20 @@ import java.util.List;
 import java.util.Map;
 
 public class ML_port implements IML_port {
+
     private String olamaHost;
     private final AppLogger logger;
 
     public ML_port(String host, AppLogger applogger) {
         this.olamaHost = host;
         this.logger = applogger;
-        if (logger != null) logger.info("ML_port initialized with host {}", olamaHost);
+
+        if (logger != null) {
+            logger.info(
+                    "ML_port initialized with host {}",
+                    olamaHost
+            );
+        }
     }
 
     public ML_port(String host) {
@@ -34,7 +41,9 @@ public class ML_port implements IML_port {
         if (jsonStr.startsWith("{") && jsonStr.endsWith("}")) {
             jsonStr = jsonStr.substring(1, jsonStr.length() - 1).trim();
         } else {
-            if (logger != null) logger.error("Invalid JSON object: {}", jsonStr);
+            if (logger != null) {
+                logger.error("Invalid JSON object: {}", jsonStr);
+            }
             throw new IllegalArgumentException("Invalid JSON object");
         }
 
@@ -73,24 +82,45 @@ public class ML_port implements IML_port {
     }
 
     private String stripQuotes(String str) {
-        if (str.startsWith("\"") && str.endsWith("\"")) return str.substring(1, str.length() - 1);
+        if (str.startsWith("\"") && str.endsWith("\"")) {
+            return str.substring(1, str.length() - 1);
+        }
         return str;
     }
 
     @Override
-    public List<ATag> get_tags_names(String question, String answer, List<ATag> tags) throws IOException, InterruptedException {
-        if (logger != null) logger.info("Generating tags for question '{}' and answer '{}'", question, answer);
+    public List<ATag> get_tags_names(
+            String question,
+            String answer,
+            List<ATag> tags
+    ) throws IOException, InterruptedException {
+
+        if (logger != null) {
+            logger.info(
+                    "Generating tags for question '{}' and answer '{}'",
+                    question,
+                    answer
+            );
+        }
 
         StringBuilder tags_name_list = new StringBuilder();
-        for (ATag tag : tags) tags_name_list.append(tag.getName()).append(",");
+        for (ATag tag : tags) {
+            tags_name_list.append(tag.getName()).append(",");
+        }
 
-        String requestBody = "{\"stream\": false, \"model\": \"gemma3:4b-it-qat\", \"prompt\": \"" +
+        String requestBody = "{\n" +
+                "  \"stream\": false,\n" +
+                "  \"model\": \"gemma3:4b-it-qat\",\n" +
+                "  \"prompt\": \"" +
                 "Given the question: " + question +
                 " Here is the answer: " + answer +
-                " Available tags: " + tags_name_list +
-                " Extract at least two tags from the answer and respond with nothing but the tags, separated by commas.\"}";
+                " Available tags: " + tags_name_list + " Extract at least two tags from the answer and respond only with the tags, separated by commas.\"\n" +
+                "}";
 
-        if (logger != null) logger.info("Sending request to ML service at {}", olamaHost);
+
+        if (logger != null) {
+            logger.info("Sending request to ML service at {}", olamaHost);
+        }
 
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -101,13 +131,17 @@ public class ML_port implements IML_port {
         HttpResponse<String> response = HttpClient.newHttpClient()
                 .send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (logger != null) logger.info("Received response: {}", response.body());
+        if (logger != null) {
+            logger.info("Received response: {}", response.body());
+        }
 
         Map<String, String> parsed;
         try {
             parsed = parseJson(response.body());
         } catch (IllegalArgumentException e) {
-            if (logger != null) logger.error("Failed to parse JSON response", e);
+            if (logger != null) {
+                logger.error("Failed to parse JSON response", e);
+            }
             throw e;
         }
 
@@ -125,12 +159,16 @@ public class ML_port implements IML_port {
             for (ATag tag : tags) {
                 if (tag.getName().equals(tag_name)) {
                     answer_tags.add(tag);
-                    if (logger != null) logger.info("Matched tag: {}", tag_name);
+                    if (logger != null) {
+                        logger.info("Matched tag: {}", tag_name);
+                    }
                 }
             }
         }
 
-        if (logger != null) logger.info("Total matched tags: {}", answer_tags.size());
+        if (logger != null) {
+            logger.info("Total matched tags: {}", answer_tags.size());
+        }
         return answer_tags;
     }
 }

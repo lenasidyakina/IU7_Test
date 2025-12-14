@@ -14,7 +14,7 @@ import java.util.List;
 
 
 @Repository
-public interface SpringQuestionnaireRepository extends JpaRepository<Questionnaire, Long>{
+public interface SpringQuestionnaireRepository extends JpaRepository<Questionnaire, Long> {
     List<Questionnaire> findByUserId(Long userId);
     void deleteByUserId(Long userId);
     @Query(value = "SELECT * FROM recommend_questionnaires(:questionnaireId)", nativeQuery = true)

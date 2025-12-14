@@ -1,22 +1,17 @@
 package ru.bmstu.iu7.src.managers;
 
 import ru.bmstu.iu7.API.AppLogger;
-import ru.bmstu.iu7.API.IML_port;
-import ru.bmstu.iu7.API.IQuestionnaireRepository;
-import ru.bmstu.iu7.API.IReqCacheRepository;
 import ru.bmstu.iu7.API.model.*;
 import ru.bmstu.iu7.src.controllers.QuestionnaireController;
 import ru.bmstu.iu7.src.controllers.ReqCacheController;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 public class RecManager {
     private final QuestionnaireController m_controller;
     private static boolean is_update_running = false;
     private final Object sync = new Object();
     private final AppLogger logger;
-
 
     public RecManager(QuestionnaireController controller) {
         this(controller, null);
@@ -37,9 +32,7 @@ public class RecManager {
         };
     }
 
-
-    public void doGetFriends()
-    {
+    public void doGetFriends() {
         if (logger != null) {
             logger.info("Get Friends");
             logger.info("ScheduledTask started for updating recommendations");
@@ -53,13 +46,14 @@ public class RecManager {
             int pageSize = 1000;
             m_controller.clear_req_cache_active_quest();
             while (true) {
-                all = (List<AQuestionnaire>) m_controller.get_questionnairies(page, pageSize, current.getUser().getId());
+                all = (List<AQuestionnaire>) m_controller.get_questionnairies(
+                        page, pageSize, current.getUser().getId());
                 Iterator<AQuestionnaire> it = all.iterator();
                 List<AQuestionnaire> list = new ArrayList<>();
                 while (it.hasNext()) {
                     AQuestionnaire q = it.next();
                     if (!black_list.contains(q) && !fav_list.contains(q)) {
-                       list.add(q);
+                        list.add(q);
                     }
                 }
                 if (list.isEmpty()) break;
@@ -74,14 +68,13 @@ public class RecManager {
         }
     }
 
-
     public List<AQuestionnaire> get_friends() {
         try {
             if (m_controller.get_active_questionnaire() == null) {
                 if (logger != null) logger.warn("No active questionnaire found when getting friends");
                 return Collections.emptyList();
             } else {
-                if (!ReqCacheController.running) { //.isEmpty()) {
+                if (!ReqCacheController.running) {
                     ReqCacheController.running = true;
                     doGetFriends();
                 }
@@ -161,9 +154,10 @@ public class RecManager {
                 }
                 if (logger != null) logger.info("Number of questionnaires at pass " + count + " = " + all.size());
 
-
-                int first_similarity_coeff = information_comparison(current.getInformation(), questionnaire.getSearchInformation());
-                int second_similarity_coeff = information_comparison(current.getSearchInformation(), questionnaire.getInformation());
+                int first_similarity_coeff = information_comparison(
+                        current.getInformation(), questionnaire.getSearchInformation());
+                int second_similarity_coeff = information_comparison(
+                        current.getSearchInformation(), questionnaire.getInformation());
 
                 if (first_similarity_coeff + second_similarity_coeff == 0) {
                     harmonic_average_norm = 0;
@@ -174,11 +168,14 @@ public class RecManager {
                     harmonic_average_norm = harmonic_average / max_harmonic_average;
                 }
 
-                if ((harmonic_average_norm >= 0) && (!m_controller.is_in_black(questionnaire) &&
-                        (!m_controller.is_in_fav(questionnaire)))) {
+                if ((harmonic_average_norm >= 0) &&
+                        (!m_controller.is_in_black(questionnaire)) &&
+                        (!m_controller.is_in_fav(questionnaire))) {
                     if (logger != null) logger.info("count = " + (count++));
                     m_controller.add_in_cache_list(harmonic_average_norm, questionnaire);
-                    if (logger != null) logger.info("Added questionnaire {} to recommendation cache with score {}", questionnaire.getId(), harmonic_average_norm);
+                    if (logger != null) logger.info(
+                            "Added questionnaire {} to recommendation cache with score {}",
+                            questionnaire.getId(), harmonic_average_norm);
                 }
             }
         } catch (Exception e) {
@@ -186,4 +183,3 @@ public class RecManager {
         }
     }
 }
-

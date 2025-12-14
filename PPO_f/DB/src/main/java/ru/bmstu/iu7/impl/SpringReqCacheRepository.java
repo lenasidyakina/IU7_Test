@@ -12,7 +12,7 @@ import ru.bmstu.iu7.impl.model.ReqCache;
 import java.util.List;
 
 @Repository
-public interface SpringReqCacheRepository extends JpaRepository<ReqCache, Long>{
+public interface SpringReqCacheRepository extends JpaRepository<ReqCache, Long> {
     @Transactional
     void deleteAllByQuestionnaire1(Questionnaire questionnaire);
 
@@ -35,7 +35,8 @@ public interface SpringReqCacheRepository extends JpaRepository<ReqCache, Long>{
 
     @Transactional
     @Modifying
-    @Query(value = "INSERT INTO req_cache ( questionnaire1_id, questionnaire2_id, factor) VALUES (:questionnaire1Id, :questionnaire2Id, :Factor)",
+    @Query(value = "INSERT INTO req_cache ( questionnaire1_id, questionnaire2_id, factor) " +
+            "VALUES (:questionnaire1Id, :questionnaire2Id, :Factor)",
     nativeQuery = true)
     void insertCachePair(@Param("questionnaire1Id") Long questionnaire1Id,
                          @Param("questionnaire2Id") Long questionnaire2Id,

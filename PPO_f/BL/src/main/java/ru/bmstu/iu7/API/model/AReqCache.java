@@ -2,33 +2,47 @@ package ru.bmstu.iu7.API.model;
 
 public class AReqCache {
 
-    Long id;
-    AQuestionnaire questionnaire1;
-    AQuestionnaire questionnaire2;
-    double Factor;
+    private Long id;
+    private AQuestionnaire questionnaire1;
+    private AQuestionnaire questionnaire2;
+    private double factor;
 
-    public AReqCache(Long id, double Factor, AQuestionnaire questionnaire1, AQuestionnaire questionnaire2) {
+    public AReqCache(Long id, double factor, AQuestionnaire questionnaire1, AQuestionnaire questionnaire2) {
         this.id = id;
-        this.Factor = Factor;
+        this.factor = factor;
         this.questionnaire1 = questionnaire1;
         this.questionnaire2 = questionnaire2;
     }
 
     public Long getId() {
-        return id;
+        return this.id;
     }
-    public void setId(Long id) { this.id=id; }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public double getFactor() {
-        return this.Factor;
+        return this.factor;
     }
+
+    public void setFactor(double factor) {
+        this.factor = factor;
+    }
+
     public AQuestionnaire getQuestionnaire1() {
-        return questionnaire1;
+        return this.questionnaire1;
     }
+
+    public void setQuestionnaire1(AQuestionnaire questionnaire1) {
+        this.questionnaire1 = questionnaire1;
+    }
+
     public AQuestionnaire getQuestionnaire2() {
-        return questionnaire2;
+        return this.questionnaire2;
     }
 
-
+    public void setQuestionnaire2(AQuestionnaire questionnaire2) {
+        this.questionnaire2 = questionnaire2;
+    }
 }
-

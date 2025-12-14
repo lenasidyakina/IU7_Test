@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import ru.bmstu.iu7.impl.model.VariantAnswer;
 
 @Repository
-public interface SpringVariantAnswerRepository extends JpaRepository<VariantAnswer, Long>{
+public interface SpringVariantAnswerRepository extends JpaRepository<VariantAnswer, Long> {
 }

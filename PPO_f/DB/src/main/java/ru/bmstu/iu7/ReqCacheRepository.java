@@ -37,7 +37,8 @@ public class ReqCacheRepository implements IReqCacheRepository {
                     questionnaire1.getId(), questionnaire2.getId());
 
             if (rq.isEmpty()) {
-               m_springReqCacheRepository.insertCachePair(questionnaire1.getId(), questionnaire2.getId(), rc.getFactor());
+               m_springReqCacheRepository.insertCachePair(questionnaire1.getId(),
+                       questionnaire2.getId(), rc.getFactor());
                logger.info("insert record " + (n++));
                 return ModelFactory.ReqCache2AReqCache(rc);
             } else {

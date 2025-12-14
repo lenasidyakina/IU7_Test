@@ -1,12 +1,11 @@
 package ru.bmstu.iu7.impl.model;
 
 import jakarta.persistence.*;
-
 import java.util.Objects;
 
 @Entity
-@Table(name="tag")
-public class Tag  {
+@Table(name = "tag")
+public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -16,6 +15,7 @@ public class Tag  {
         return id;
     }
     public void setId(Long id) { this.id = id; }
+
     public String getName() {
         return name;
     }
@@ -27,6 +27,7 @@ public class Tag  {
     public String toString() {
         return name;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -36,9 +37,9 @@ public class Tag  {
         if (name != null ? !name.equals(tag.name) : tag.name != null) return false;
         return true;
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(name);
     }
-
 }

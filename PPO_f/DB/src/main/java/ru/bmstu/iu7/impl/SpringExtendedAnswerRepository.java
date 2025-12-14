@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import ru.bmstu.iu7.impl.model.ExtendedAnswer;
 
 @Repository
-public interface SpringExtendedAnswerRepository extends JpaRepository<ExtendedAnswer, Long>{
+public interface SpringExtendedAnswerRepository extends JpaRepository<ExtendedAnswer, Long> {
 }

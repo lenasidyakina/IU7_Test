@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.bmstu.iu7.impl.model.Tag;
 
 @Repository
-public interface SpringTagRepository extends JpaRepository<Tag, Long>{
+public interface SpringTagRepository extends JpaRepository<Tag, Long> {
     Tag findByName(String name);
 }

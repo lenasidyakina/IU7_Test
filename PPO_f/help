@@ -3,3 +3,6 @@ java "-Dfile.encoding=UTF-8" -jar ".\app_cli\build\libs\app_cli-1.0-SNAPSHOT.jar
 ./gradlew :BL:build
 ./gradlew :DB:build
 ./gradlew :ML:build
+
+./gradlew sonar -Dsonar.projectKey=MyMultiModuleProject -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_79c9690919aba5e92b23e8d080287d2e3ae8f7f0
+./gradlew checkstyleAll

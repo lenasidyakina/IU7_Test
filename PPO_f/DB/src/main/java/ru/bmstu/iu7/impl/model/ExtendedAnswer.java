@@ -1,8 +1,6 @@
 package ru.bmstu.iu7.impl.model;
 
-
 import jakarta.persistence.*;
-
 import java.util.List;
 
 @Entity
@@ -23,7 +21,9 @@ public class ExtendedAnswer {
     public Long getId() {
         return id;
     }
-    public void setId(Long id) { this.id=id; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public int getWeight() {
         return weight;
@@ -31,12 +31,14 @@ public class ExtendedAnswer {
     public void setWeight(int weight) {
         this.weight = weight;
     }
+
     public String getAnswer() {
         return answer;
     }
     public void setAnswer(String answer) {
         this.answer = answer;
     }
+
     public List<Tag> getTags() {
         return tags;
     }
@@ -50,5 +52,4 @@ public class ExtendedAnswer {
     public void setQuestion(Question question) {
         this.question = question;
     }
-
 }

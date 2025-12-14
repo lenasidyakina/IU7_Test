@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="Lab6 PMD Rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0
+                             http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+
+    <description>Lab6 PMD: complexity and unused code checks</description>
+
+    <!-- Cognitive Complexity -->
+    <rule ref="category/java/design.xml/CognitiveComplexity"/>
+
+    <!-- Halstead Complexity -->
+    <rule ref="category/java/design.xml/HalsteadComplexity"/>
+
+    <!-- Unused local variables -->
+    <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>
+
+    <!-- Unused private fields -->
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateField"/>
+
+    <!-- Unused imports -->
+    <rule ref="category/java/bestpractices.xml/UnusedImports"/>
+</ruleset>

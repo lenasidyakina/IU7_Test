@@ -6,14 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReqCacheController {
+
     public static List<AQuestionnaire> m_list = new ArrayList<>();
     public static boolean running = false;
 
+    public ReqCacheController() { }
 
-    public ReqCacheController() {}
-
-    public void delete_from_cache(AQuestionnaire q)
-    {
+    public void delete_from_cache(AQuestionnaire q) {
         m_list.remove(q);
     }
 
@@ -29,5 +28,4 @@ public class ReqCacheController {
         m_list.clear();
         running = false;
     }
-
 }

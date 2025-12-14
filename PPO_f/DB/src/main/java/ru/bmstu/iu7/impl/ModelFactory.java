@@ -39,8 +39,9 @@ public class ModelFactory {
         return q;
     }
 
-    public static Questionnaire makeQuestionnaire(Long id, User user, Information information, Information searchInformation,
-                                                   List<Questionnaire> blacklist, List<Questionnaire> favList, boolean censored)
+    public static Questionnaire makeQuestionnaire(Long id, User user, Information information,
+                                                  Information searchInformation, List<Questionnaire> blacklist,
+                                                  List<Questionnaire> favList, boolean censored)
     {
         Questionnaire q = new Questionnaire();
         q.setId(id);
@@ -80,7 +81,7 @@ public class ModelFactory {
         return user;
     }
 
-    public static VariantAnswer makeVariantAnswer(Long id, int weight, Tag tag, Question question){
+    public static VariantAnswer makeVariantAnswer(Long id, int weight, Tag tag, Question question) {
         VariantAnswer answer = new VariantAnswer();
         answer.setId(id);
         answer.setWeight(weight);
@@ -411,7 +412,8 @@ public class ModelFactory {
     {
         if (user == null)
             return null;
-        return new AUser(user.getId(), user.getName(), user.getAge(), user.isGender(), user.getPassword(), user.getRole());
+        return new AUser(user.getId(), user.getName(), user.getAge(),
+                user.isGender(), user.getPassword(), user.getRole());
     }
 
     public static User AUser2User(AUser user)
