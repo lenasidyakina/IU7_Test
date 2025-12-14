@@ -43,7 +43,7 @@ jobs:
         for i in {1..5}; do
           curl -sSf -u "sqp_79c9690919aba5e92b23e8d080287d2e3ae8f7f0:" \
                -X POST \
-               -F "file=@ci/sonarqube-config/AllRulesDisabled.zip" \
+               -F "file=@PPO_f/ci/sonarqube-config/AllRulesDisabled.zip" \
                http://localhost:9000/api/qualityprofiles/restore && break || echo "Retrying..."
           sleep 5
         done
