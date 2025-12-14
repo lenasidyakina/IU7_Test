@@ -42,16 +42,16 @@ jobs:
       passed: ${{ steps.check.outputs.passed }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Run Cyclomatic Complexity checks
+      
+      - name: Run CodeStyle checks
         id: check
         run: |
           cd PPO_f
           chmod +x gradlew
           mkdir -p build/cccheck-results
           touch build/cccheck-results/output.log
-          
-          ./gradlew clean :metrics-analyzer:run  >> build/cccheck-results/output.log 2>&1 || {
+      
+          ./gradlew :metrics-analyzer:run >> build/cccheck-results/output.log 2>&1 || {
             echo "Code style checks failed" >> build/cccheck-results/output.log
             exit 1
           }
