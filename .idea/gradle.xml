@@ -17,6 +17,7 @@
             <option value="$PROJECT_DIR$/PPO_f/ML" />
             <option value="$PROJECT_DIR$/PPO_f/ML_stab" />
             <option value="$PROJECT_DIR$/PPO_f/app_cli" />
+            <option value="$PROJECT_DIR$/PPO_f/app_cli_server" />
           </set>
         </option>
       </GradleProjectSettings>
